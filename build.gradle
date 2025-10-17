@@ -5,6 +5,9 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+
+    // Apply the JaCoCo plugin for code coverage.
+    id 'jacoco'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -28,4 +31,17 @@ dependencies {
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+
+    // Ensure that the JaCoCo report is generated after tests are run.
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+	// Configure JaCoCo for code coverage reporting.
+    toolVersion = '0.8.13'
+}
+
+jacocoTestReport {
+    // Configure tests to be run before generating the report.
+    dependsOn test
 }
