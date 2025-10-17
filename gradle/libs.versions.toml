@@ -1,0 +1,7 @@
+# This file provides the version numbers of the dependencies of the library.
+
+[versions]
+junit-jupiter = "5.12.1"
+
+[libraries]
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
