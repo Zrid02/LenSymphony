@@ -30,7 +30,8 @@ import fr.univartois.butinfo.lensymphony.notes.Note;
 import fr.univartois.butinfo.lensymphony.notes.NotePitch;
 import fr.univartois.butinfo.lensymphony.notes.NoteValue;
 import fr.univartois.butinfo.lensymphony.notes.PitchClass;
-import fr.univartois.butinfo.lensymphony.synthesizer.MusicSynthesizer;
+import fr.univartois.butinfo.lensymphony.synthesizer.SimpleMusicSynthesizer;
+import fr.univartois.butinfo.lensymphony.synthesizer.IMusicSynthesizer;
 import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
 
 /**
@@ -111,7 +112,7 @@ public final class Example {
                 noteFactory.createNote(NotePitch.of(PitchClass.G, 4), NoteValue.HALF));
 
         // Synthesizing and playing the melody.
-        MusicSynthesizer musicSynthetizer = new MusicSynthesizer(100, notes, noteSynthesizer);
+        IMusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(100, notes, noteSynthesizer);
         musicSynthetizer.synthesize();
         musicSynthetizer.play();
     }
