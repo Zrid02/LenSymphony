@@ -63,6 +63,15 @@ public interface AbstractNoteFactory {
     Note createDottedNote(Note note);
 
     /**
+     * Creates a note representing a fermata on the given note.
+     *
+     * @param note The note on which to add a fermata.
+     *
+     * @return The created note with a fermata.
+     */
+    Note createFermataOn(Note note);
+
+    /**
      * Creates a note representing the tie of the given notes.
      *
      * @param notes The notes to tie together.
