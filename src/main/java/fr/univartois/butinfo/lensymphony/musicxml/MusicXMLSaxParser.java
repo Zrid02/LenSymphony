@@ -26,6 +26,7 @@ package fr.univartois.butinfo.lensymphony.musicxml;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 import org.xml.sax.Attributes;
@@ -60,9 +61,34 @@ public final class MusicXMLSaxParser extends DefaultHandler {
     private int tempo = 60;
 
     /**
+     * The map associating each part (given by its ID) to the list of notes in that part.
+     */
+    private Map<String, List<Note>> parts = new TreeMap<>();
+
+    /**
+     * The identifier of the current part being parsed (used during parsing).
+     */
+    private String currentPartId = null;
+
+    /**
+     * The current chromatic transposition (used during parsing).
+     */
+    private int currentChromaticTransposition = 0;
+
+    /**
      * The list of notes parsed from the MusicXML file.
      */
-    private List<Note> notes = new ArrayList<>();
+    private List<Note> notes;
+
+    /**
+     * The current tie being parsed (used during parsing).
+     */
+    private List<Note> currentTie;
+
+    /**
+     * Whether a tie has been started and not ended (used during parsing).
+     */
+    private boolean inTie;
 
     /**
      * The pitch class of the current note (used during parsing).
@@ -95,6 +121,11 @@ public final class MusicXMLSaxParser extends DefaultHandler {
     private Note currentNote = null;
 
     /**
+     * The identifier of the staff of the current note (used during parsing).
+     */
+    private int currentStaff = 0;
+
+    /**
      * The text buffer used to accumulate character data between XML tags.
      */
     private StringBuilder textBuffer = new StringBuilder();
@@ -104,18 +135,23 @@ public final class MusicXMLSaxParser extends DefaultHandler {
      */
     private Map<String, Consumer<Attributes>> startElementHandlers = Map.of(
             "sound", this::startSound,
+            "part", this::startPart,
+            "tie", this::startTie,
             "note", this::startNote);
 
     /**
      * The map of handlers for the end of XML elements.
      */
     private Map<String, Runnable> endElementHandlers = Map.of(
+            "chromatic", this::endChromatic,
             "step", this::endStep,
             "alter", this::endAlter,
             "octave", this::endOctave,
             "pitch", this::endPitch,
             "type", this::endType,
             "dot", this::endDot,
+            "fermata", this::endFermata,
+            "staff", this::endStaff,
             "note", this::endNote);
 
     /**
@@ -155,6 +191,34 @@ public final class MusicXMLSaxParser extends DefaultHandler {
     }
 
     /**
+     * Initializes the state for a new {@code part} element.
+     *
+     * @param attributes The attributes of the {@code part} element.
+     */
+    private void startPart(Attributes attributes) {
+        currentPartId = attributes.getValue("id");
+        currentChromaticTransposition = 0;
+    }
+
+    /**
+     * Initializes the state for a new {@code tie} element.
+     *
+     * @param attributes The attributes of the {@code tie} element.
+     */
+    private void startTie(Attributes attributes) {
+        if ("start".equals(attributes.getValue("type"))) {
+            // Starting a new tie.
+            currentTie = new ArrayList<>();
+            inTie = true;
+
+        } else if ("stop".equals(attributes.getValue("type"))) {
+            // Ending the current tie.
+            inTie = false;
+
+        }
+    }
+
+    /**
      * Initializes the state for a new {@code note} element.
      *
      * @param attributes The attributes of the {@code note} element.
@@ -165,6 +229,7 @@ public final class MusicXMLSaxParser extends DefaultHandler {
         currentOctave = -1;
         currentPitch = null;
         currentValue = null;
+        currentStaff = 0;
         currentNote = null;
     }
 
@@ -189,6 +254,15 @@ public final class MusicXMLSaxParser extends DefaultHandler {
         if (endElementHandlers.containsKey(qName)) {
             endElementHandlers.get(qName).run();
         }
+    }
+
+    /**
+     * Extracts the chromatic transposition from the content of a {@code chromatic}
+     * element.
+     */
+    private void endChromatic() {
+        String text = textBuffer.toString().trim();
+        currentChromaticTransposition = Integer.parseInt(text);
     }
 
     /**
@@ -219,7 +293,8 @@ public final class MusicXMLSaxParser extends DefaultHandler {
      * Finalizes the pitch of the current note when a {@code pitch} element is closed.
      */
     private void endPitch() {
-        currentPitch = NotePitch.of(currentPitchClass, currentOctave, currentAlter);
+        currentPitch = NotePitch.of(currentPitchClass, currentOctave,
+                currentChromaticTransposition + currentAlter);
     }
 
     /**
@@ -244,10 +319,46 @@ public final class MusicXMLSaxParser extends DefaultHandler {
     }
 
     /**
+     * Adds a fermata to the current note when a {@code fermata} element is closed.
+     */
+    private void endFermata() {
+        currentNote = noteFactory.createFermataOn(currentNote);
+    }
+
+    /**
+     * Extracts the staff identifier from the content of a {@code staff} element.
+     */
+    private void endStaff() {
+        String text = textBuffer.toString().trim();
+        currentStaff = Integer.parseInt(text);
+        String staffId = currentPartId + "." + currentStaff;
+        notes = parts.computeIfAbsent(staffId, k -> new ArrayList<>());
+    }
+
+    /**
      * Finalizes the current note and adds it to the list of notes when a {@code note}
      * element is closed.
      */
     private void endNote() {
+        if (inTie) {
+            // The note is not added yet: the tie is not over.
+            currentTie.add(currentNote);
+            return;
+        }
+
+        if (currentTie != null) {
+            // The tie has just been ended.
+            // The note, is added to the tie, and a tied note is created.
+            currentTie.add(currentNote);
+            currentNote = noteFactory.createTiedNotes(currentTie);
+            currentTie = null;
+        }
+
+        // Adding the note to the list of notes.
+        if (notes == null) {
+            // No staff defined yet: using a default one.
+            notes = parts.computeIfAbsent(currentPartId, k -> new ArrayList<>());
+        }
         notes.add(currentNote);
     }
 
@@ -258,6 +369,27 @@ public final class MusicXMLSaxParser extends DefaultHandler {
      */
     public int getTempo() {
         return tempo;
+    }
+
+    /**
+     * Gives the map associating each part (given by its ID) to the list of notes in that
+     * part.
+     *
+     * @return The map of the parts.
+     */
+    public Map<String, List<Note>> getParts() {
+        return parts;
+    }
+
+    /**
+     * Gives the list of notes for a given part.
+     *
+     * @param partId The ID of the part.
+     *
+     * @return The list of notes for the given part.
+     */
+    public List<Note> getNotes(String partId) {
+        return parts.get(partId);
     }
 
     /**
