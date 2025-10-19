@@ -23,7 +23,7 @@
 
 package fr.univartois.butinfo.lensymphony.synthesizer;
 
-import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 import fr.univartois.butinfo.lensymphony.notes.Note;
 
@@ -59,10 +59,9 @@ public final class SimpleMusicSynthesizer implements IMusicSynthesizer {
     private NoteSynthesizer synthesizer;
 
     /**
-     * The byte array output stream where the audio data is stored before being played or
-     * saved.
+     * The synthesized audio samples as a double array.
      */
-    private ByteArrayOutputStream byteArray;
+    private double[] samples;
 
     /**
      * Creates a new MusicSynthesizer.
@@ -75,7 +74,7 @@ public final class SimpleMusicSynthesizer implements IMusicSynthesizer {
         this.tempo = tempo;
         this.notes = notes;
         this.synthesizer = synthetizer;
-        this.byteArray = new ByteArrayOutputStream();
+        this.samples = new double[0];
     }
 
     /*
@@ -86,23 +85,24 @@ public final class SimpleMusicSynthesizer implements IMusicSynthesizer {
     @Override
     public void synthesize() {
         for (Note note : notes) {
-            double[] samples = synthesizer.synthesize(note, tempo, DEFAULT_VOLUME);
-            for (double sample : samples) {
-                short sampleShort = (short) (sample * 32767);
-                byteArray.write(sampleShort & 0xFF);
-                byteArray.write((sampleShort >> 8) & 0xFF);
-            }
+            // Synthesizing the sound samples for this note.
+            double[] noteSamples = synthesizer.synthesize(note, tempo, DEFAULT_VOLUME);
+
+            // Appending the samples to the overall audio stream.
+            int previousLength = samples.length;
+            samples = Arrays.copyOf(samples, samples.length + noteSamples.length);
+            System.arraycopy(noteSamples, 0, samples, previousLength, noteSamples.length);
         }
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see fr.univartois.butinfo.lensymphony.synthesizer.IMusicSynthesizer#getAudioData()
+     * @see fr.univartois.butinfo.lensymphony.synthesizer.IMusicSynthesizer#getSamples()
      */
     @Override
-    public byte[] getAudioData() {
-        return byteArray.toByteArray();
+    public double[] getSamples() {
+        return samples;
     }
 
 }

@@ -1,17 +1,24 @@
 /**
- * Ce logiciel est distribué à des fins éducatives.
+ * LenSymphony - A simple music synthesizer library developed in Lens, France.
+ * Copyright (c) 2025 Romain Wallon - Université d'Artois.
  *
- * Il est fourni "tel quel", sans garantie d’aucune sorte, explicite
- * ou implicite, notamment sans garantie de qualité marchande, d’adéquation
- * à un usage particulier et d’absence de contrefaçon.
- * En aucun cas, les auteurs ou titulaires du droit d’auteur ne seront
- * responsables de tout dommage, réclamation ou autre responsabilité, que ce
- * soit dans le cadre d’un contrat, d’un délit ou autre, en provenance de,
- * consécutif à ou en relation avec le logiciel ou son utilisation, ou avec
- * d’autres éléments du logiciel.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * (c) 2025 Romain Wallon - Université d'Artois.
- * Tous droits réservés.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+ * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package fr.univartois.butinfo.lensymphony.synthesizer;
@@ -41,9 +48,18 @@ public interface IMusicSynthesizer {
 
     /**
      * Generates the audio samples for the sequence of notes, and stores them for later
-     * playback or saving, encoded as a byte array.
+     * playback or saving, encoded as a double array.
      */
     void synthesize();
+
+    /**
+     * Gives the synthesized audio samples as a double array.
+     * If the audio stream has not been synthesized yet, this method returns an empty
+     * array.
+     *
+     * @return The synthesized audio samples as a double array.
+     */
+    double[] getSamples();
 
     /**
      * Returns the synthesized audio data as a byte array.
@@ -54,7 +70,17 @@ public interface IMusicSynthesizer {
      *
      * @see #synthesize()
      */
-    byte[] getAudioData();
+    default byte[] getAudioData() {
+        double[] samples = getSamples();
+        byte[] audioData = new byte[samples.length * 2];
+
+        for (int i = 0; i < samples.length; i++) {
+            short sampleShort = (short) (samples[i] * 32767);
+            audioData[i * 2] = (byte) (sampleShort & 0xFF);
+            audioData[i * 2 + 1] = (byte) ((sampleShort >> 8) & 0xFF);
+        }
+        return audioData;
+    }
 
     /**
      * Plays the synthesized audio stream.
