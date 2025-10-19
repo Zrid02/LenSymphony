@@ -24,6 +24,7 @@
 package fr.univartois.butinfo.lensymphony.musicxml;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -54,6 +55,11 @@ public final class MusicXMLSaxParser extends DefaultHandler {
      * The factory to create the notes of the parsed music.
      */
     private final AbstractNoteFactory noteFactory;
+
+    /**
+     * The number of beats per measure.
+     */
+    private int beats;
 
     /**
      * The tempo of the music (in beats per minute).
@@ -137,22 +143,26 @@ public final class MusicXMLSaxParser extends DefaultHandler {
             "sound", this::startSound,
             "part", this::startPart,
             "tie", this::startTie,
+            "rest", this::startRest,
             "note", this::startNote);
 
     /**
      * The map of handlers for the end of XML elements.
      */
-    private Map<String, Runnable> endElementHandlers = Map.of(
-            "chromatic", this::endChromatic,
-            "step", this::endStep,
-            "alter", this::endAlter,
-            "octave", this::endOctave,
-            "pitch", this::endPitch,
-            "type", this::endType,
-            "dot", this::endDot,
-            "fermata", this::endFermata,
-            "staff", this::endStaff,
-            "note", this::endNote);
+    private Map<String, Runnable> endElementHandlers = Map.ofEntries(
+            Map.entry("beats", this::endBeats),
+            Map.entry("chromatic", this::endChromatic),
+            Map.entry("step", this::endStep),
+            Map.entry("display-step", this::endStep),
+            Map.entry("alter", this::endAlter),
+            Map.entry("octave", this::endOctave),
+            Map.entry("display-octave", this::endOctave),
+            Map.entry("pitch", this::endPitch),
+            Map.entry("type", this::endType),
+            Map.entry("dot", this::endDot),
+            Map.entry("fermata", this::endFermata),
+            Map.entry("staff", this::endStaff),
+            Map.entry("note", this::endNote));
 
     /**
      * Creates a new MusicXMLSaxParser.
@@ -198,6 +208,7 @@ public final class MusicXMLSaxParser extends DefaultHandler {
     private void startPart(Attributes attributes) {
         currentPartId = attributes.getValue("id");
         currentChromaticTransposition = 0;
+        notes = null;
     }
 
     /**
@@ -207,14 +218,29 @@ public final class MusicXMLSaxParser extends DefaultHandler {
      */
     private void startTie(Attributes attributes) {
         if ("start".equals(attributes.getValue("type"))) {
-            // Starting a new tie.
-            currentTie = new ArrayList<>();
+            // Starting a new tie, or continuing an existing one.
+            if (currentTie == null) {
+                currentTie = new ArrayList<>();
+            }
             inTie = true;
 
         } else if ("stop".equals(attributes.getValue("type"))) {
             // Ending the current tie.
             inTie = false;
 
+        }
+    }
+
+    /**
+     * Adds a full rest when a {@code rest} element is started with its {@code measure}
+     * attribute set to {@code "yes"}.
+     *
+     * @param attributes The attributes of the {@code rest} element.
+     */
+    private void startRest(Attributes attributes) {
+        if ("yes".equals(attributes.getValue("measure"))) {
+            currentNote = noteFactory.createTiedNotes(
+                    Collections.nCopies(beats, noteFactory.createRest(NoteValue.QUARTER)));
         }
     }
 
@@ -254,6 +280,15 @@ public final class MusicXMLSaxParser extends DefaultHandler {
         if (endElementHandlers.containsKey(qName)) {
             endElementHandlers.get(qName).run();
         }
+    }
+
+    /**
+     * Extracts the number of beats per measure from the content of a {@code beats}
+     * element.
+     */
+    private void endBeats() {
+        String text = textBuffer.toString().trim();
+        beats = Integer.parseInt(text);
     }
 
     /**
