@@ -188,12 +188,27 @@ class LenSymphony {
     + {static} main(args: String[]): void
 }
 
+class NoteFactory implements AbstractNoteFactory {
+
+    - {static} INSTANCE: NoteFactory
+    - NoteFactory()
+    + {static} getInstance(): NoteFactory
+    + createRest(value: NoteValue): Note
+    + createNote(pitch: NotePitch, value: NoteValue): Note
+    + createDottedNote(note: Note): Note
+    + createFermataOn(note: Note): Note
+    + createTiedNotes(notes: Note[]): Note
+    + createTiedNotes(notes: List<Note>): Note
+   
+}
+
 Example --> AbstractNoteFactory : << uses >>
 Example --> MusicXMLSaxParser : << uses >>
 Example --> NoteSynthesizer : << uses >>
 LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
+
 ```
 
 ## Feature list
@@ -201,7 +216,7 @@ LenSymphony --> NoteSynthesizer : << uses >>
 | Features                                               | Design Pattern(s) (?) | Author(s)       |
 |--------------------------------------------------------|-----------------------|-----------------|
 | Representation of a note's pitch (name + octave)       | None                  |                 |
-| Representation of a note/silence value                 | None                  |                 |
+| Representation of a note/silence value                 | None                  | Dutkiewicz Tom  |
 | Representation of a musical note                       | Decorator             | Rabhi Nessim    |
 | Representation of a silence                            | Composite             | Dassonville Ugo |
 | Representation of a point on a note                    | Decorator             |                 |
