@@ -38,7 +38,6 @@ public interface AbstractNoteFactory {
      * Creates a rest with the given value.
      *
      * @param value The value of the rest.
-     *
      * @return The created rest.
      */
     Note createRest(NoteValue value);
@@ -48,7 +47,6 @@ public interface AbstractNoteFactory {
      *
      * @param pitch The pitch of the note.
      * @param value The value of the note.
-     *
      * @return The created note.
      */
     Note createNote(NotePitch pitch, NoteValue value);
@@ -57,7 +55,6 @@ public interface AbstractNoteFactory {
      * Creates a dotted note from the given existing note.
      *
      * @param note The existing note on which to add a dot.
-     *
      * @return The created dotted note.
      */
     Note createDottedNote(Note note);
@@ -66,7 +63,6 @@ public interface AbstractNoteFactory {
      * Creates a note representing a fermata on the given note.
      *
      * @param note The note on which to add a fermata.
-     *
      * @return The created note with a fermata.
      */
     Note createFermataOn(Note note);
@@ -86,7 +82,6 @@ public interface AbstractNoteFactory {
      * Creates a note representing the tie of the given notes.
      *
      * @param notes The notes to tie together.
-     *
      * @return The created tied note.
      */
     Note createTiedNotes(List<Note> notes);
