@@ -155,38 +155,38 @@ LenSymphony --> NoteSynthesizer : << uses >>
 
 ## Feature list
 
-| Features                                               | Design Pattern(s) (?)       | Author(s) |
-|--------------------------------------------------------|-----------------------------|-----------|
-| Representation of a note's pitch (name + octave)       |                             |           |
-| Representation of a note/silence value                 |                             |           |
-| Representation of a musical note                       |                             |           |
-| Representation of a silence                            |                             |           |
-| Representation of a point on a note                    |                             |           |
-| Representation of a tie between notes                  |                             |           |
-| Representation of a staff                              |                             |           |
-| Traversal of notes/silences in a staff                 |                             |           |
-| Representation of a musical piece                      |                             |           |
-| Creation of musical elements (notes, silences)         |                             |           |
-| Generation of the "pure" sound for a note              |                             |           |
-| Addition of harmonics to the sound of a note           |                             |           |
-| Application of an ADSR envelope to the sound of a note |                             |           |
-| Application of a vibrato to the sound of a note        |                             |           |
-| Addition of random noise to the sound of a note        |                             |           |
-| Synthesis of the bass drum sound                       |                             |           |
-| Synthesis of the snare drum sound                      |                             |           |
-| Synthesis of the cymbal sound                          |                             |           |
-| Synthesis of the triangle sound                        |                             |           |
-| Synthesis of the timpani sound                         |                             |           |
-| Synthesis of the xylophone sound                       |                             |           |
-| Definition of virtual instruments                      |                             |           |
-| Synthesis of the ensemble piece sound                  |                             |           |
-| Command line management                                |                             |           |
+| Features                                               | Design Pattern(s) (?) | Author(s)       |
+|--------------------------------------------------------|-----------------------|-----------------|
+| Representation of a note's pitch (name + octave)       | None                  |                 |
+| Representation of a note/silence value                 | None                  |                 |
+| Representation of a musical note                       | Decorator             | Rabhi Nessim    |
+| Representation of a silence                            | Composite             | Dassonville Ugo |
+| Representation of a point on a note                    | Decorator             |                 |
+| Representation of a tie between notes                  | Composite             |                 |
+| Representation of a staff                              | Composite             |                 |
+| Traversal of notes/silences in a staff                 | Iterator              |                 |
+| Representation of a musical piece                      | Composite             |                 |
+| Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
+| Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
+| Addition of harmonics to the sound of a note           | Decorator             |                 |
+| Application of an ADSR envelope to the sound of a note | Decorator             |                 |
+| Application of a vibrato to the sound of a note        | Decorator             |                 |
+| Addition of random noise to the sound of a note        | Decorator             |                 |
+| Synthesis of the bass drum sound                       | Strategy              |                 |
+| Synthesis of the snare drum sound                      | Strategy              |                 |
+| Synthesis of the cymbal sound                          | Strategy              |                 |
+| Synthesis of the triangle sound                        | Strategy              |                 |
+| Synthesis of the timpani sound                         | Strategy              |                 |
+| Synthesis of the xylophone sound                       | Strategy              |                 |
+| Definition of virtual instruments                      | Abstract Fabric       |                 |
+| Synthesis of the ensemble piece sound                  | Composite             |                 |
+| Command line management                                | Singleton             |                 |
 
 ## Team
 
 This project has been developed by:
 
-- Your Name Here
-- Your Name Here
-- Your Name Here
-- Your Name Here
+- Dassonville Ugo  
+- Mouille Antoine
+- Rabhi Nessim
+- Dutkiewicz Tom
