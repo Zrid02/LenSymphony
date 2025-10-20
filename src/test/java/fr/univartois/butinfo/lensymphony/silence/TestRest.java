@@ -9,10 +9,17 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for {@link Rest}.
+ *
+ * <p>Tests validate dot handling, tie behavior, immutability of the tied list, frequency value,
+ * and tempo validation for duration computation.</p>
+ */
 public class TestRest {
 
-
-	//FakeNote class to simulate notes since Note class was still in production
+	/**
+	 * Fake implementation of {@link Note} used to simulate non-rest notes in tests.
+	 */
 	private static class FakeNote implements Note {
 		private final double frequency;
 		private final int duration;
@@ -33,7 +40,9 @@ public class TestRest {
 		}
 	}
 
-
+	/**
+	 * Verifies that adding a negative number of dots throws an exception.
+	 */
 	@Test
 	void addDotsNegativeThrows() {
 		NoteValue nv = NoteValue.WHOLE;
@@ -41,6 +50,9 @@ public class TestRest {
 		assertThrows(IllegalArgumentException.class, () -> s.addDots(-3));
 	}
 
+	/**
+	 * Verifies that tying a rest with a non-rest (non-zero frequency) throws an exception.
+	 */
 	@Test
 	void tieWithNonSilenceThrows() {
 		NoteValue nv = NoteValue.WHOLE;
@@ -49,6 +61,9 @@ public class TestRest {
 		assertThrows(IllegalArgumentException.class, () -> s.tieWith(soundNote));
 	}
 
+	/**
+	 * Verifies that tieWith adds the other rest and returns this instance.
+	 */
 	@Test
 	void tieWithAddsAndReturnsThis() {
 		NoteValue nv1 = NoteValue.WHOLE;
@@ -61,6 +76,9 @@ public class TestRest {
 		assertTrue(tied.contains(s2));
 	}
 
+	/**
+	 * Verifies that the list returned by getTiedNotes is unmodifiable.
+	 */
 	@Test
 	void getTiedNotesIsUnmodifiable() {
 		NoteValue nv = NoteValue.WHOLE;
@@ -71,6 +89,9 @@ public class TestRest {
 		assertThrows(UnsupportedOperationException.class, () -> tied.add(s2));
 	}
 
+	/**
+	 * Verifies that the frequency of a rest is always 0.0.
+	 */
 	@Test
 	void getFrequencyIsZero() {
 		NoteValue nv = NoteValue.WHOLE;
@@ -78,9 +99,12 @@ public class TestRest {
 		assertEquals(0.0, s.getFrequency());
 	}
 
+	/**
+	 * Verifies that getDuration validates its tempo parameter.
+	 */
 	@Test
 	void getDurationTempoValidation() {
-		NoteValue nv =NoteValue.WHOLE;
+		NoteValue nv = NoteValue.WHOLE;
 		Rest s = new Rest(nv);
 		assertThrows(IllegalArgumentException.class, () -> s.getDuration(0));
 		assertThrows(IllegalArgumentException.class, () -> s.getDuration(-10));
