@@ -37,14 +37,14 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 /**
- * The IMusicSynthesizer interface defines the methods required to synthesize a sequence
+ * The MusicSynthesizer interface defines the methods required to synthesize a sequence
  * of notes.
  *
  * @author Romain Wallon
  *
  * @version 0.1.0
  */
-public interface IMusicSynthesizer {
+public interface MusicSynthesizer {
 
     /**
      * Generates the audio samples for the sequence of notes, and stores them for later

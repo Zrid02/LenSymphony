@@ -36,7 +36,7 @@ import fr.univartois.butinfo.lensymphony.notes.Note;
  *
  * @version 0.1.0
  */
-public final class SimpleMusicSynthesizer implements IMusicSynthesizer {
+public final class SimpleMusicSynthesizer implements MusicSynthesizer {
 
     /**
      * The default volume level for the notes.

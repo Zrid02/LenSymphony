@@ -30,7 +30,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import fr.univartois.butinfo.lensymphony.musicxml.MusicXMLSaxParser;
 import fr.univartois.butinfo.lensymphony.notes.AbstractNoteFactory;
-import fr.univartois.butinfo.lensymphony.synthesizer.IMusicSynthesizer;
+import fr.univartois.butinfo.lensymphony.synthesizer.MusicSynthesizer;
 import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
 import fr.univartois.butinfo.lensymphony.synthesizer.SimpleMusicSynthesizer;
 
@@ -91,7 +91,7 @@ public final class LenSymphony {
 
         // Synthesizing and playing the music.
         // TODO: Use the musical score instead of the parsed data directly.
-        IMusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(handler.getTempo(), handler.getNotes(), noteSynthesizer);
+        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(handler.getTempo(), handler.getNotes(), noteSynthesizer);
         musicSynthetizer.synthesize();
         musicSynthetizer.play();
     }
