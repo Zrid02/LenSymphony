@@ -23,8 +23,6 @@
 
 package fr.univartois.butinfo.lensymphony.notes;
 
-import java.util.Objects;
-
 /**
  * A concrete implementation of {@link Note} representing a pitched musical note.
  * <p>
@@ -59,8 +57,14 @@ public final class PitchedNote implements Note {
      * @throws NullPointerException If either {@code pitch} or {@code value} is {@code null}.
      */
     public PitchedNote(NotePitch pitch, NoteValue value) {
-        this.pitch = Objects.requireNonNull(pitch, "pitch");
-        this.value = Objects.requireNonNull(value, "value");
+        if (pitch == null) {
+            throw new NullPointerException("pitch");
+        }
+        if (value == null) {
+            throw new NullPointerException("value");
+        }
+        this.pitch = pitch;
+        this.value = value;
     }
 
     /**
@@ -131,7 +135,8 @@ public final class PitchedNote implements Note {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PitchedNote that)) return false;
+        if (!(o instanceof PitchedNote)) return false;
+        PitchedNote that = (PitchedNote) o;
         return pitch.equals(that.pitch) && value.equals(that.value);
     }
 
