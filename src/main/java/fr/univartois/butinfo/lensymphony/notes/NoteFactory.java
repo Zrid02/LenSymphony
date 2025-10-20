@@ -4,9 +4,13 @@ import java.util.List;
 
 public final class NoteFactory implements AbstractNoteFactory {
 
+    /**
+     * Creates singleton because a factory only needs one instance.
+     */
+
     private static final NoteFactory INSTANCE = new NoteFactory();
 
-    public NoteFactory() {
+    private NoteFactory() {
         // Private constructor to prevent instantiation
     }
 

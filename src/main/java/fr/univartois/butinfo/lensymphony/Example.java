@@ -45,7 +45,7 @@ public final class Example {
      * The note factory used to create notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static AbstractNoteFactory noteFactory = new NoteFactory();
+    private static AbstractNoteFactory noteFactory = NoteFactory.getInstance();
 
     /**
      * The note synthesizer used to synthesize notes.
