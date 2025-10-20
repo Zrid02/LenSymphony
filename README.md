@@ -86,7 +86,19 @@ class PitchedNote {
   PitchedNote --> NotePitch : uses
   PitchedNote --> NoteValue : uses
 
-
+class Rest {
+    - noteValue: NoteValue
+    - dots: int
+    - tiedNotes: List\<Note\>
+    + Rest(noteValue: NoteValue)
+    + Rest(noteValue: NoteValue, dots: int)
+    + addDot(): void
+    + addDots(n: int): void
+    + tieWith(other: Note): Rest
+    + getTiedNotes(): List\<Note\>
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+}
 package "tests" {
   class PitchedNoteTest <<test>> {
     + a4Quarter_at120bpm()
