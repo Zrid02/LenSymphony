@@ -2,7 +2,12 @@ package fr.univartois.butinfo.lensymphony.synthesizer;
 
 import fr.univartois.butinfo.lensymphony.notes.Note;
 
-
+/**
+ *
+ * this class synthesize a pure sound
+ *
+ * @author antoine mouille
+ */
 public class PureSound implements NoteSynthesizer{
     public static final int SAMPLE_RATE = 44100;
     /**
