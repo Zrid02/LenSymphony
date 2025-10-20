@@ -72,6 +72,32 @@ interface Note {
     + {abstract} getDuration(tempo: int): int
 }
 
+class PitchedNote {
+    - pitch: NotePitch
+    - value: NoteValue
+    + PitchedNote(pitch: NotePitch, value: NoteValue)
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+    + pitch(): NotePitch
+    + value(): NoteValue
+  }
+
+  PitchedNote ..|> Note
+  PitchedNote --> NotePitch : uses
+  PitchedNote --> NoteValue : uses
+
+
+package "tests" {
+  class PitchedNoteTest <<test>> {
+    + a4Quarter_at120bpm()
+    + c4Half_at90bpm()
+    + e5Eighth_at120bpm()
+  }
+}
+
+PitchedNoteTest ..> PitchedNote : tests
+
+
 interface AbstractNoteFactory {
     + {abstract} createRest(value: NoteValue): Note
     + {abstract} createNote(pitch: NotePitch, value: NoteValue): Note
