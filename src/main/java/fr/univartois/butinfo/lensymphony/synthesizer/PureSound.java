@@ -22,7 +22,7 @@ public class PureSound implements NoteSynthesizer{
     public double[] synthesize(Note note, int tempo, double volume){
         double frequency = note.getFrequency();
 
-        double duration = note.getDuration(tempo);
+        double duration = note.getDuration(tempo)/1000.0;
 
         int nbSample = (int) (duration*SAMPLE_RATE);
 
