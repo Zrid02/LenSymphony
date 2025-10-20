@@ -106,6 +106,11 @@ interface NoteSynthesizer {
     + {abstract} synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class PureSound implements NoteSynthesizer{
+    + {static} SAMPLE_RATE: int
+    + synthesize(note: Note, tempo: int, volume: oduble): double[]
+}
+
 interface MusicSynthesizer {
     + {abstract} synthesize(): void
     + {abstract} getSamples(): double[]
