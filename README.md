@@ -204,6 +204,13 @@ class PureSound {
 
 PureSound ..|> NoteSynthesizer
 
+class MusicPiece implements Iterable{
+    - scores: ArrayList<Score>
+    + addScore(score: Score ): void
+    + iterator(): Iterator<Score>
+}
+
+MusicPiece --> "liste" Score
 interface MusicSynthesizer {
     + {abstract} synthesize(): void
     + {abstract} getSamples(): double[]

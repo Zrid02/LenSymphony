@@ -14,7 +14,7 @@ public class MusicPiece implements Iterable<Score>{
      * this method add a stave in our list of stave
      * @param score a list of notes
      */
-    public void addStave(Score score) {
+    public void addScore(Score score) {
         scores.add(score);
     }
 
