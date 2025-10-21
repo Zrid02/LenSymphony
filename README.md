@@ -263,6 +263,15 @@ class SimpleMusicSynthesizer {
     + getSamples(): double[]
 }
 
+class MultipleScoreSynthesizer {
+  + add(synth: MusicSynthesizer): void
+  + synthesize(): void
+  + getSamples(): double[]
+}
+
+MultipleScoreSynthesizer ..|> MusicSynthesizer
+MultipleScoreSynthesizer o-- "*" MusicSynthesizer : combines
+
 SimpleMusicSynthesizer ..|> MusicSynthesizer
 SimpleMusicSynthesizer o-- "*" Note
 SimpleMusicSynthesizer o-- "1" NoteSynthesizer
