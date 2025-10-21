@@ -24,14 +24,16 @@
 package fr.univartois.butinfo.lensymphony;
 
 import java.io.File;
+import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import fr.univartois.butinfo.lensymphony.musicxml.MusicXMLSaxParser;
-import fr.univartois.butinfo.lensymphony.notes.AbstractNoteFactory;
+import fr.univartois.butinfo.lensymphony.notes.*;
 import fr.univartois.butinfo.lensymphony.synthesizer.MusicSynthesizer;
 import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
+import fr.univartois.butinfo.lensymphony.synthesizer.PureSound;
 import fr.univartois.butinfo.lensymphony.synthesizer.SimpleMusicSynthesizer;
 
 /**
@@ -49,13 +51,13 @@ public final class LenSymphony {
      * The note factory used to create notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static AbstractNoteFactory noteFactory = null;
+    private static AbstractNoteFactory noteFactory = NoteFactory.getInstance();
 
     /**
      * The note synthesizer used to synthesize notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static NoteSynthesizer noteSynthesizer = null;
+    private static NoteSynthesizer noteSynthesizer = new PureSound();
 
     /**
      * Disables instantiation.
@@ -87,10 +89,11 @@ public final class LenSymphony {
         saxParser.parse(new File(args[0]), handler);
 
         // Creating a musical score from the parsed data.
-        // TODO: Instantiate your representation of a musical score here.
+        Score score = new Score(Instruments.XYLOPHONE,handler.getNotes());
 
         // Synthesizing and playing the music.
-        // TODO: Use the musical score instead of the parsed data directly.
+        MusicPiece musicPiece = new MusicPiece();
+        musicPiece.addStave(score);
         MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(handler.getTempo(), handler.getNotes(), noteSynthesizer);
         musicSynthetizer.synthesize();
         musicSynthetizer.play();
