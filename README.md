@@ -162,16 +162,36 @@ MusicXMLSaxParser --> AbstractNoteFactory : << uses >>
 ' --------------- '
 
 interface NoteSynthesizer {
-    + {static} SAMPLE_RATE: int
+    + {static} SAMPLE_RATE: int = 44100
     + {abstract} synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
 class PureSound {
-    + {static} SAMPLE_RATE: int
     + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+abstract class NoteSynthesizerDecorator {
+    # synthesizer: NoteSynthesizer
+    
+    # NoteSynthesizerDecorator(synthesizer: NoteSynthesizer)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+class HarmonicSynthesizer {
+    - numberOfHarmonics: int
+    
+    + HarmonicSynthesizer(synthesizer: NoteSynthesizer, numberOfHarmonics: int)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+' Relations Synthesizers
 PureSound ..|> NoteSynthesizer
+
+NoteSynthesizerDecorator ..|> NoteSynthesizer
+NoteSynthesizerDecorator o--> NoteSynthesizer : decorates
+
+HarmonicSynthesizer --|> NoteSynthesizerDecorator
+
 
 class MusicPiece implements Iterable{
     - scores: ArrayList<Score>
@@ -285,7 +305,7 @@ end note
 | Representation of a musical piece                      | Composite             |                 |
 | Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
 | Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
-| Addition of harmonics to the sound of a note           | Decorator             |                 |
+| Addition of harmonics to the sound of a note           | Decorator             | Rabhi Nessim    |
 | Application of an ADSR envelope to the sound of a note | Decorator             |                 |
 | Application of a vibrato to the sound of a note        | Decorator             |                 |
 | Addition of random noise to the sound of a note        | Decorator             |                 |
