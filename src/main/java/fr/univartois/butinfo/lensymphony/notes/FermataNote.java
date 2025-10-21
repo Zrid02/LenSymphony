@@ -22,6 +22,6 @@ public class FermataNote extends NoteDecorator {
      */
     @Override
     public int getDuration(int tempo) {
-        return super.getDuration(tempo) * 4; // Fermata note during is 4 times the original note duration
+        return super.getDuration(tempo) * 2; // Fermata note during is 2 times the original note duration
     }
 }

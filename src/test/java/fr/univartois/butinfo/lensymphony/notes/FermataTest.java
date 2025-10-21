@@ -19,9 +19,9 @@ public class FermataTest {
 
         int tempo = 120;
 
-        // Calculate expected duration with fermata (4 times the original duration)
+        // Calculate expected duration with fermata (2 times the original duration)
         int originalDuration = pitchedNote.getDuration(tempo);
-        int expectedDuration = originalDuration * 4;
+        int expectedDuration = originalDuration * 2;
 
         assertEquals(expectedDuration, fermata.getDuration(tempo), "The duration with fermata is incorrect.");
     }
@@ -38,9 +38,9 @@ public class FermataTest {
 
         int tempo = 90;
 
-        // Calculate expected duration with fermata (4 times the original duration)
+        // Calculate expected duration with fermata (2 times the original duration)
         int originalDuration = pitchedNote.getDuration(tempo);
-        int expectedDuration = originalDuration * 4;
+        int expectedDuration = originalDuration * 2;
 
         assertEquals(expectedDuration, fermata.getDuration(tempo), "The duration with fermata is incorrect.");
     }
@@ -60,9 +60,9 @@ public class FermataTest {
 
         int tempo = 100;
 
-        // Calculate expected duration with fermata (4 times the original dotted duration)
+        // Calculate expected duration with fermata (2 times the original dotted duration)
         int originalDuration = dottedNote.getDuration(tempo);
-        int expectedDuration = originalDuration * 4;
+        int expectedDuration = originalDuration * 2;
 
         assertEquals(expectedDuration, fermata.getDuration(tempo), "The duration of dotted note with fermata is incorrect.");
     }
