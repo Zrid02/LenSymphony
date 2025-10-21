@@ -232,6 +232,14 @@ class NoteFactory {
     + createTiedNotes(notes: List<Note>): Note
 }
 
+class TiedNotes implements Note {
+    - notes: List<Note>
+    + TiedNotes(notes: List<Note>)
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+}
+
+
 NoteFactory ..|> AbstractNoteFactory
 
 Example --> AbstractNoteFactory : << uses >>
@@ -240,6 +248,8 @@ Example --> NoteSynthesizer : << uses >>
 LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
+
+
 
 note right of NoteDecorator
   Decorator pattern base class.
@@ -269,7 +279,7 @@ end note
 | Representation of a musical note                       | Decorator             | Rabhi Nessim    |
 | Representation of a silence                            | Composite             | Dassonville Ugo |
 | Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
-| Representation of a tie between notes                  | Composite             |                 |
+| Representation of a tie between notes                  | Composite             | Dutkiewicz Tom  |
 | Representation of a staff                              | Composite             |                 |
 | Traversal of notes/silences in a staff                 | Iterator              |                 |
 | Representation of a musical piece                      | Composite             |                 |
