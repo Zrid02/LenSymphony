@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Composite qui contient plusieurs MusicSynthesizer (une par portée) et qui les mixe.
+ * Composite that adds multiple musicSynthesizers
  */
 public class MultipleScoreSynthesizer implements MusicSynthesizer {
 
@@ -43,8 +43,7 @@ public class MultipleScoreSynthesizer implements MusicSynthesizer {
 		for (MusicSynthesizer synth : synthetizers) {
 			double[] cSamples = synth.getSamples();
 			for (int i = 0; i < cSamples.length; i++) {
-				samples[i] += cSamples[i];
-				samples[i]/= count;//diviser la valeur obtenue par le nombre total de MusicSynthesizer
+				samples[i] += cSamples[i]/count;
 			}
 		}
 		return samples;
