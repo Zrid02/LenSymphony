@@ -270,6 +270,13 @@ class TiedNotes implements Note {
     + getDuration(tempo: int): int
 }
 
+class FermataNote {
+    + FermataNote(note: Note)
+    + getDuration(tempo: int): int
+}
+
+FermataNote --|> NoteDecorator
+
 
 NoteFactory ..|> AbstractNoteFactory
 
