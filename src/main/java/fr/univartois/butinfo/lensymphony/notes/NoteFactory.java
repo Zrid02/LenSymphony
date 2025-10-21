@@ -63,8 +63,7 @@ public final class NoteFactory implements AbstractNoteFactory {
 
     @Override
     public Note createFermataOn(Note note) {
-        throw new UnsupportedOperationException("createFermataOn not implemented yet");
-        // When FermataNote will be created : return new FermataNote(note);
+        return new FermataNote(note);
     }
 
     /**
