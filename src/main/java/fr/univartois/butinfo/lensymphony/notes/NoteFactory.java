@@ -51,8 +51,7 @@ public final class NoteFactory implements AbstractNoteFactory {
 
     @Override
     public Note createDottedNote(Note note) {
-        throw new UnsupportedOperationException("createDottedNote not implemented yet");
-        // When DottedNote will be created created : return new DottedNote(note);
+        return new DottedNote(note);
     }
 
     /**
@@ -72,26 +71,12 @@ public final class NoteFactory implements AbstractNoteFactory {
      * Creates a note representing the tie of the given notes.
      *
      * @param notes The notes to tie together.
-     *
-     * @return The created tied note.
-     */
-
-    @Override
-    public Note createTiedNotes(Note... notes) {
-        return createTiedNotes(List.of(notes));
-    }
-
-    /**
-     * Creates a note representing the tie of the given notes.
-     *
-     * @param notes The notes to tie together.
      * @return The created tied note.
      */
 
     @Override
     public Note createTiedNotes(List<Note> notes) {
-        throw new UnsupportedOperationException("createTiedNotes(List<Note>) not implemented yet");
-        // When FermataNote will be created : return new TiedNotes(note);
+        return new TiedNotes(notes);
 
     }
 
