@@ -80,11 +80,30 @@ class PitchedNote {
     + getDuration(tempo: int): int
     + pitch(): NotePitch
     + value(): NoteValue
-  }
+    + equals(o: Object): boolean
+    + hashCode(): int
+    + toString(): String
+}
 
-  PitchedNote ..|> Note
-  PitchedNote --> NotePitch : uses
-  PitchedNote --> NoteValue : uses
+PitchedNote ..|> Note
+PitchedNote --> NotePitch : uses
+PitchedNote --> NoteValue : uses
+
+abstract class NoteDecorator {
+    # note: Note
+    # NoteDecorator(note: Note)
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+}
+
+class DottedNote {
+    + DottedNote(note: Note)
+    + getDuration(tempo: int): int
+}
+
+NoteDecorator ..|> Note
+NoteDecorator o--> Note : decorates
+DottedNote --|> NoteDecorator
 
 class Rest {
     - noteValue: NoteValue
@@ -99,6 +118,10 @@ class Rest {
     + getFrequency(): double
     + getDuration(tempo: int): int
 }
+
+Rest ..|> Note
+Rest --> NoteValue : uses
+
 package "tests" {
   class PitchedNoteTest <<test>> {
     + a4Quarter_at120bpm()
@@ -108,7 +131,6 @@ package "tests" {
 }
 
 PitchedNoteTest ..> PitchedNote : tests
-
 
 interface AbstractNoteFactory {
     + {abstract} createRest(value: NoteValue): Note
@@ -144,10 +166,12 @@ interface NoteSynthesizer {
     + {abstract} synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
-class PureSound implements NoteSynthesizer{
+class PureSound {
     + {static} SAMPLE_RATE: int
-    + synthesize(note: Note, tempo: int, volume: oduble): double[]
+    + synthesize(note: Note, tempo: int, volume: double): double[]
 }
+
+PureSound ..|> NoteSynthesizer
 
 interface MusicSynthesizer {
     + {abstract} synthesize(): void
@@ -157,18 +181,19 @@ interface MusicSynthesizer {
     + {abstract} save(filename: String): void
 }
 
-class SimpleMusicSynthesizer implements MusicSynthesizer {
+class SimpleMusicSynthesizer {
     - {static} DEFAULT_VOLUME: double
     - notes: Iterable<Note>
     - synthesizer: NoteSynthesizer
     - tempo: int
     - samples: double[]
 
-    + SimpleMusicSynthesizer(tempo: int, notes: Iterable<Note>, synthetizer: NoteSynthesizer)
+    + SimpleMusicSynthesizer(tempo: int, notes: Iterable<Note>, synthesizer: NoteSynthesizer)
     + synthesize(): void
     + getSamples(): double[]
 }
 
+SimpleMusicSynthesizer ..|> MusicSynthesizer
 SimpleMusicSynthesizer o-- "*" Note
 SimpleMusicSynthesizer o-- "1" NoteSynthesizer
 
@@ -188,8 +213,7 @@ class LenSymphony {
     + {static} main(args: String[]): void
 }
 
-class NoteFactory implements AbstractNoteFactory {
-
+class NoteFactory {
     - {static} INSTANCE: NoteFactory
     - NoteFactory()
     + {static} getInstance(): NoteFactory
@@ -199,8 +223,9 @@ class NoteFactory implements AbstractNoteFactory {
     + createFermataOn(note: Note): Note
     + createTiedNotes(notes: Note[]): Note
     + createTiedNotes(notes: List<Note>): Note
-   
 }
+
+NoteFactory ..|> AbstractNoteFactory
 
 Example --> AbstractNoteFactory : << uses >>
 Example --> MusicXMLSaxParser : << uses >>
@@ -208,6 +233,23 @@ Example --> NoteSynthesizer : << uses >>
 LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
+
+note right of NoteDecorator
+  Decorator pattern base class.
+  Delegates all operations to
+  the wrapped note by default.
+end note
+
+note right of DottedNote
+  Concrete decorator that
+  increases duration by 50%
+  (multiplies by 1.5).
+end note
+
+note right of PitchedNote
+  Concrete note implementation
+  combining pitch and rhythmic value.
+end note
 
 ```
 
@@ -219,7 +261,7 @@ LenSymphony --> NoteSynthesizer : << uses >>
 | Representation of a note/silence value                 | None                  | Dutkiewicz Tom  |
 | Representation of a musical note                       | Decorator             | Rabhi Nessim    |
 | Representation of a silence                            | Composite             | Dassonville Ugo |
-| Representation of a point on a note                    | Decorator             |                 |
+| Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
 | Representation of a tie between notes                  | Composite             |                 |
 | Representation of a staff                              | Composite             |                 |
 | Traversal of notes/silences in a staff                 | Iterator              |                 |
