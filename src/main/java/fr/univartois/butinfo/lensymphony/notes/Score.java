@@ -61,4 +61,8 @@ public class Score implements Iterable<Note> {
 	public Iterator<Note> iterator() {
 		return notes.iterator();
 	}
+
+	public Iterable<Note> getNotes() {
+		return notes;
+	}
 }
