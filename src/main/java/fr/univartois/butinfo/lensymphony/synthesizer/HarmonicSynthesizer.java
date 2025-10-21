@@ -104,7 +104,7 @@ public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
                 value += Math.sin(2 * Math.PI * harmonic * frequency * t) / Math.sqrt(harmonic);
             }
 
-            sounds[i] = (volume / numberOfHarmonics) * value;
+            sounds[i] = (1. / numberOfHarmonics) * value;
         }
 
         return sounds;
