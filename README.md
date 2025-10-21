@@ -144,6 +144,37 @@ interface AbstractNoteFactory {
 NotePitch o-- PitchClass
 AbstractNoteFactory --> Note : << creates >>
 
+' Score (stave) representation
+class Score {
+  - notes: List\<Note\>
+  - instrument: Instruments
+  + Score(instrument: Instruments, notes: List\<Note\>)
+  + getInstrument(): Instruments
+  + addNote(note: Note): void
+  + iterator(): Iterator\<Note\>
+}
+enum Instruments {
+  + BASS_DRUM
+  + SNARE_DRUM
+  + CYMBAL
+  + TRIANGLE
+  + TIMPANI
+  + XYLOPHONE
+}
+
+Score o-- "*" Note
+Score --> Instruments : uses
+
+package "tests" {
+  class ScoreTest <<test>> {
+    + constructorSetsInstrument()
+    + iteratorIsEmptyWhenNoNotes()
+    + addNote()
+  }
+}
+
+ScoreTest ..> Score : tests
+
 ' ------- '
 ' Parsing '
 ' ------- '
