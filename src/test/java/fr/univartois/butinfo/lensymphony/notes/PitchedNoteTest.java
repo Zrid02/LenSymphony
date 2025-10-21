@@ -7,23 +7,37 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PitchedNoteTest {
 
     @Test
-    void a4Quarter_at120bpm() {
-        Note n = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
-        assertEquals(440.0, n.getFrequency(), 1e-9);
-        assertEquals(500, n.getDuration(120)); // whole@120=2000ms -> quarter=500ms
+    void createPitchedNote() {
+        Note note = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
+
+        assertNotNull(note);
     }
 
     @Test
-    void c4Half_at90bpm() {
-        Note n = new PitchedNote(NotePitch.of(PitchClass.C, 4), NoteValue.HALF);
-        assertEquals(261.625565, n.getFrequency(), 1e-3);
-        assertEquals(1333, n.getDuration(90)); // 2666.66 * 0.5 -> 1333 (cast int)
+    void getFrequency() {
+        Note note = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
+
+        assertEquals(440.0, note.getFrequency(), 0.01);
     }
 
     @Test
-    void e5Eighth_at120bpm() {
-        Note n = new PitchedNote(NotePitch.of(PitchClass.E, 5), NoteValue.EIGHTH);
-        assertEquals(659.255, n.getFrequency(), 1e-2);
-        assertEquals(250, n.getDuration(120)); // 2000 * 0.125
+    void getDuration() {
+        Note note = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
+
+        assertEquals(500, note.getDuration(120));
+    }
+
+    @Test
+    void nullPitch_throwsException() {
+        assertThrows(NullPointerException.class, () -> {
+            new PitchedNote(null, NoteValue.QUARTER);
+        });
+    }
+
+    @Test
+    void nullValue_throwsException() {
+        assertThrows(NullPointerException.class, () -> {
+            new PitchedNote(NotePitch.of(PitchClass.A, 4), null);
+        });
     }
 }

@@ -80,11 +80,30 @@ class PitchedNote {
     + getDuration(tempo: int): int
     + pitch(): NotePitch
     + value(): NoteValue
-  }
+    + equals(o: Object): boolean
+    + hashCode(): int
+    + toString(): String
+}
 
-  PitchedNote ..|> Note
-  PitchedNote --> NotePitch : uses
-  PitchedNote --> NoteValue : uses
+PitchedNote ..|> Note
+PitchedNote --> NotePitch : uses
+PitchedNote --> NoteValue : uses
+
+abstract class NoteDecorator {
+    # note: Note
+    # NoteDecorator(note: Note)
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+}
+
+class DottedNote {
+    + DottedNote(note: Note)
+    + getDuration(tempo: int): int
+}
+
+NoteDecorator ..|> Note
+NoteDecorator o--> Note : decorates
+DottedNote --|> NoteDecorator
 
 class Rest {
     - noteValue: NoteValue
@@ -99,6 +118,10 @@ class Rest {
     + getFrequency(): double
     + getDuration(tempo: int): int
 }
+
+Rest ..|> Note
+Rest --> NoteValue : uses
+
 package "tests" {
   class PitchedNoteTest <<test>> {
     + a4Quarter_at120bpm()
@@ -108,7 +131,6 @@ package "tests" {
 }
 
 PitchedNoteTest ..> PitchedNote : tests
-
 
 interface AbstractNoteFactory {
     + {abstract} createRest(value: NoteValue): Note
@@ -121,6 +143,37 @@ interface AbstractNoteFactory {
 
 NotePitch o-- PitchClass
 AbstractNoteFactory --> Note : << creates >>
+
+' Score (stave) representation
+class Score {
+  - notes: List\<Note\>
+  - instrument: Instruments
+  + Score(instrument: Instruments, notes: List\<Note\>)
+  + getInstrument(): Instruments
+  + addNote(note: Note): void
+  + iterator(): Iterator\<Note\>
+}
+enum Instruments {
+  + BASS_DRUM
+  + SNARE_DRUM
+  + CYMBAL
+  + TRIANGLE
+  + TIMPANI
+  + XYLOPHONE
+}
+
+Score o-- "*" Note
+Score --> Instruments : uses
+
+package "tests" {
+  class ScoreTest <<test>> {
+    + constructorSetsInstrument()
+    + iteratorIsEmptyWhenNoNotes()
+    + addNote()
+  }
+}
+
+ScoreTest ..> Score : tests
 
 ' ------- '
 ' Parsing '
@@ -144,11 +197,20 @@ interface NoteSynthesizer {
     + {abstract} synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
-class PureSound implements NoteSynthesizer{
+class PureSound {
     + {static} SAMPLE_RATE: int
-    + synthesize(note: Note, tempo: int, volume: oduble): double[]
+    + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+PureSound ..|> NoteSynthesizer
+
+class MusicPiece implements Iterable{
+    - scores: ArrayList<Score>
+    + addScore(score: Score ): void
+    + iterator(): Iterator<Score>
+}
+
+MusicPiece --> "liste" Score
 interface MusicSynthesizer {
     + {abstract} synthesize(): void
     + {abstract} getSamples(): double[]
@@ -157,18 +219,19 @@ interface MusicSynthesizer {
     + {abstract} save(filename: String): void
 }
 
-class SimpleMusicSynthesizer implements MusicSynthesizer {
+class SimpleMusicSynthesizer {
     - {static} DEFAULT_VOLUME: double
     - notes: Iterable<Note>
     - synthesizer: NoteSynthesizer
     - tempo: int
     - samples: double[]
 
-    + SimpleMusicSynthesizer(tempo: int, notes: Iterable<Note>, synthetizer: NoteSynthesizer)
+    + SimpleMusicSynthesizer(tempo: int, notes: Iterable<Note>, synthesizer: NoteSynthesizer)
     + synthesize(): void
     + getSamples(): double[]
 }
 
+SimpleMusicSynthesizer ..|> MusicSynthesizer
 SimpleMusicSynthesizer o-- "*" Note
 SimpleMusicSynthesizer o-- "1" NoteSynthesizer
 
@@ -188,12 +251,54 @@ class LenSymphony {
     + {static} main(args: String[]): void
 }
 
+class NoteFactory {
+    - {static} INSTANCE: NoteFactory
+    - NoteFactory()
+    + {static} getInstance(): NoteFactory
+    + createRest(value: NoteValue): Note
+    + createNote(pitch: NotePitch, value: NoteValue): Note
+    + createDottedNote(note: Note): Note
+    + createFermataOn(note: Note): Note
+    + createTiedNotes(notes: Note[]): Note
+    + createTiedNotes(notes: List<Note>): Note
+}
+
+class TiedNotes implements Note {
+    - notes: List<Note>
+    + TiedNotes(notes: List<Note>)
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+}
+
+
+NoteFactory ..|> AbstractNoteFactory
+
 Example --> AbstractNoteFactory : << uses >>
 Example --> MusicXMLSaxParser : << uses >>
 Example --> NoteSynthesizer : << uses >>
 LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
+
+
+
+note right of NoteDecorator
+  Decorator pattern base class.
+  Delegates all operations to
+  the wrapped note by default.
+end note
+
+note right of DottedNote
+  Concrete decorator that
+  increases duration by 50%
+  (multiplies by 1.5).
+end note
+
+note right of PitchedNote
+  Concrete note implementation
+  combining pitch and rhythmic value.
+end note
+
 ```
 
 ## Feature list
@@ -201,11 +306,11 @@ LenSymphony --> NoteSynthesizer : << uses >>
 | Features                                               | Design Pattern(s) (?) | Author(s)       |
 |--------------------------------------------------------|-----------------------|-----------------|
 | Representation of a note's pitch (name + octave)       | None                  |                 |
-| Representation of a note/silence value                 | None                  |                 |
+| Representation of a note/silence value                 | None                  | Dutkiewicz Tom  |
 | Representation of a musical note                       | Decorator             | Rabhi Nessim    |
 | Representation of a silence                            | Composite             | Dassonville Ugo |
-| Representation of a point on a note                    | Decorator             |                 |
-| Representation of a tie between notes                  | Composite             |                 |
+| Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
+| Representation of a tie between notes                  | Composite             | Dutkiewicz Tom  |
 | Representation of a staff                              | Composite             |                 |
 | Traversal of notes/silences in a staff                 | Iterator              |                 |
 | Representation of a musical piece                      | Composite             |                 |
