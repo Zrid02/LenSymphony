@@ -9,7 +9,15 @@ import java.util.Iterator;
  */
 public class MusicPiece implements Iterable<Score>{
     private List<Score> scores = new ArrayList<>();
+    private int tempo;
 
+    public MusicPiece(int tempo) {
+        this.tempo = tempo;
+    }
+
+    public int getTempo() {
+        return tempo;
+    }
     /**
      * this method add a stave in our list of stave
      * @param score a list of notes

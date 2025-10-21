@@ -15,7 +15,7 @@ public class MusicPieceTest {
 
         Score score1 = new Score(Instruments.XYLOPHONE,notes);
         Score score2 = new Score(Instruments.BASS_DRUM,notes);
-        piece = new MusicPiece();
+        piece = new MusicPiece(0);
         piece.addScore(score1);
         piece.addScore(score2);
     }

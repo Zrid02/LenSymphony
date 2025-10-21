@@ -92,9 +92,9 @@ public final class LenSymphony {
         Score score = new Score(Instruments.XYLOPHONE,handler.getNotes());
 
         // Synthesizing and playing the music.
-        MusicPiece musicPiece = new MusicPiece();
+        MusicPiece musicPiece = new MusicPiece(handler.getTempo());
         musicPiece.addScore(score);
-        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(handler.getTempo(), handler.getNotes(), noteSynthesizer);
+        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(musicPiece.getTempo(), handler.getNotes(), noteSynthesizer);
         musicSynthetizer.synthesize();
         musicSynthetizer.play();
     }
