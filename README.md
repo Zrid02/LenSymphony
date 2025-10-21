@@ -160,6 +160,18 @@ enum Instruments {
   + TRIANGLE
   + TIMPANI
   + XYLOPHONE
+  + synthesizer: NoteSynthesizer
+  + getSynthesizer(): NoteSynthesizer
+  + Instruments(synthesize: NoteSynthesizer)
+}
+
+class MusicPiece{
+    - scores: ArrayList<Score>
+    - tempo: int
+    + addScore(score: Score ): void
+    + iterator(): Iterator<Score>
+    + getScores(): List<Score>
+    + getTempo(): int
 }
 
 Score o-- "*" Note
@@ -295,6 +307,8 @@ class FermataNote {
     + getDuration(tempo: int): int
 }
 
+
+
 FermataNote --|> NoteDecorator
 
 
@@ -338,7 +352,7 @@ end note
 | Representation of a silence                            | Composite             | Dassonville Ugo |
 | Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
 | Representation of a tie between notes                  | Composite             | Dutkiewicz Tom  |
-| Representation of a staff                              | Composite             |                 |
+| Representation of a staff                              | Composite             | Ugo Dassonville |
 | Traversal of notes/silences in a staff                 | Iterator              |                 |
 | Representation of a musical piece                      | Composite             |                 |
 | Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
@@ -347,13 +361,13 @@ end note
 | Application of an ADSR envelope to the sound of a note | Decorator             |                 |
 | Application of a vibrato to the sound of a note        | Decorator             |                 |
 | Addition of random noise to the sound of a note        | Decorator             |                 |
-| Synthesis of the bass drum sound                       | Strategy              |                 |
-| Synthesis of the snare drum sound                      | Strategy              |                 |
-| Synthesis of the cymbal sound                          | Strategy              |                 |
-| Synthesis of the triangle sound                        | Strategy              |                 |
-| Synthesis of the timpani sound                         | Strategy              |                 |
-| Synthesis of the xylophone sound                       | Strategy              |                 |
-| Definition of virtual instruments                      | Abstract Fabric       |                 |
+| Synthesis of the bass drum sound                       | Strategy              | Antoine Mouille |
+| Synthesis of the snare drum sound                      | Strategy              | Antoine Mouille |
+| Synthesis of the cymbal sound                          | Strategy              | Antoine Mouille |
+| Synthesis of the triangle sound                        | Strategy              | Antoine Mouille |
+| Synthesis of the timpani sound                         | Strategy              | Antoine Mouille |
+| Synthesis of the xylophone sound                       | Strategy              | Antoine Mouille |
+| Definition of virtual instruments                      | Abstract Fabric       | Antoine/Ugo     |
 | Synthesis of the ensemble piece sound                  | Composite             |                 |
 | Command line management                                | Singleton             |                 |
 
