@@ -25,16 +25,14 @@ package fr.univartois.butinfo.lensymphony;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import fr.univartois.butinfo.lensymphony.musicxml.MusicXMLSaxParser;
 import fr.univartois.butinfo.lensymphony.notes.*;
-import fr.univartois.butinfo.lensymphony.synthesizer.MusicSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.PureSound;
-import fr.univartois.butinfo.lensymphony.synthesizer.SimpleMusicSynthesizer;
+import fr.univartois.butinfo.lensymphony.synthesizer.*;
 
 /**
  * The LenSymphony class provides a simple application to synthesize and play music from a
@@ -89,14 +87,33 @@ public final class LenSymphony {
         saxParser.parse(new File(args[0]), handler);
 
         // Creating a musical score from the parsed data.
-        Score score = new Score(Instruments.XYLOPHONE,handler.getNotes());
 
         // Synthesizing and playing the music.
         MusicPiece musicPiece = new MusicPiece(handler.getTempo());
-        musicPiece.addScore(score);
-        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(musicPiece.getTempo(), handler.getNotes(), noteSynthesizer);
-        musicSynthetizer.synthesize();
-        musicSynthetizer.play();
+
+        Map<String, List<Note>> listePartitions = handler.getParts();
+
+        for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
+            List<Note> notes = entry.getValue();
+            if (notes == null) {
+                continue;
+            }
+
+            Score score = new Score(Instruments.XYLOPHONE, notes);
+            musicPiece.addScore(score);
+        }
+
+        MultipleScoreSynthesizer composite = new MultipleScoreSynthesizer();
+
+        for (Score score : musicPiece.getScores()) {
+            NoteSynthesizer ns = score.getInstrument().getSynthesizer();
+            SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns);
+            composite.add(sms);
+        }
+
+        composite.synthesize();
+        composite.play();
+
     }
 
 }

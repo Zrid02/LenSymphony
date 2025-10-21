@@ -11,10 +11,26 @@ public class MusicPiece implements Iterable<Score>{
     private List<Score> scores = new ArrayList<>();
     private int tempo;
 
+    /**
+     * this constructor create a music piece with a tempo
+     * @param tempo the tempo of the music piece
+     */
     public MusicPiece(int tempo) {
         this.tempo = tempo;
     }
 
+    /**
+     * this method return the list of scores
+     * @return the list of scores
+     */
+    public List<Score> getScores() {
+        return scores;
+    }
+
+    /**
+     * this method return the tempo of the music piece
+     * @return the tempo
+     */
     public int getTempo() {
         return tempo;
     }

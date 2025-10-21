@@ -160,6 +160,18 @@ enum Instruments {
   + TRIANGLE
   + TIMPANI
   + XYLOPHONE
+  + synthesizer: NoteSynthesizer
+  + getSynthesizer(): NoteSynthesizer
+  + Instruments(synthesize: NoteSynthesizer)
+}
+
+class MusicPiece{
+    - scores: ArrayList<Score>
+    - tempo: int
+    + addScore(score: Score ): void
+    + iterator(): Iterator<Score>
+    + getScores(): List<Score>
+    + getTempo(): int
 }
 
 Score o-- "*" Note
@@ -193,16 +205,36 @@ MusicXMLSaxParser --> AbstractNoteFactory : << uses >>
 ' --------------- '
 
 interface NoteSynthesizer {
-    + {static} SAMPLE_RATE: int
+    + {static} SAMPLE_RATE: int = 44100
     + {abstract} synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
 class PureSound {
-    + {static} SAMPLE_RATE: int
     + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+abstract class NoteSynthesizerDecorator {
+    # synthesizer: NoteSynthesizer
+    
+    # NoteSynthesizerDecorator(synthesizer: NoteSynthesizer)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+class HarmonicSynthesizer {
+    - numberOfHarmonics: int
+    
+    + HarmonicSynthesizer(synthesizer: NoteSynthesizer, numberOfHarmonics: int)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+' Relations Synthesizers
 PureSound ..|> NoteSynthesizer
+
+NoteSynthesizerDecorator ..|> NoteSynthesizer
+NoteSynthesizerDecorator o--> NoteSynthesizer : decorates
+
+HarmonicSynthesizer --|> NoteSynthesizerDecorator
+
 
 class MusicPiece implements Iterable{
     - scores: ArrayList<Score>
@@ -230,6 +262,15 @@ class SimpleMusicSynthesizer {
     + synthesize(): void
     + getSamples(): double[]
 }
+
+class MultipleScoreSynthesizer {
+  + add(synth: MusicSynthesizer): void
+  + synthesize(): void
+  + getSamples(): double[]
+}
+
+MultipleScoreSynthesizer ..|> MusicSynthesizer
+MultipleScoreSynthesizer o-- "*" MusicSynthesizer : combines
 
 SimpleMusicSynthesizer ..|> MusicSynthesizer
 SimpleMusicSynthesizer o-- "*" Note
@@ -269,6 +310,15 @@ class TiedNotes implements Note {
     + getFrequency(): double
     + getDuration(tempo: int): int
 }
+
+class FermataNote {
+    + FermataNote(note: Note)
+    + getDuration(tempo: int): int
+}
+
+
+
+FermataNote --|> NoteDecorator
 
 
 NoteFactory ..|> AbstractNoteFactory
@@ -311,22 +361,22 @@ end note
 | Representation of a silence                            | Composite             | Dassonville Ugo |
 | Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
 | Representation of a tie between notes                  | Composite             | Dutkiewicz Tom  |
-| Representation of a staff                              | Composite             |                 |
+| Representation of a staff                              | Composite             | Ugo Dassonville |
 | Traversal of notes/silences in a staff                 | Iterator              |                 |
 | Representation of a musical piece                      | Composite             |                 |
 | Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
 | Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
-| Addition of harmonics to the sound of a note           | Decorator             |                 |
+| Addition of harmonics to the sound of a note           | Decorator             | Rabhi Nessim    |
 | Application of an ADSR envelope to the sound of a note | Decorator             |                 |
 | Application of a vibrato to the sound of a note        | Decorator             |                 |
 | Addition of random noise to the sound of a note        | Decorator             |                 |
-| Synthesis of the bass drum sound                       | Strategy              |                 |
-| Synthesis of the snare drum sound                      | Strategy              |                 |
-| Synthesis of the cymbal sound                          | Strategy              |                 |
-| Synthesis of the triangle sound                        | Strategy              |                 |
-| Synthesis of the timpani sound                         | Strategy              |                 |
-| Synthesis of the xylophone sound                       | Strategy              |                 |
-| Definition of virtual instruments                      | Abstract Fabric       |                 |
+| Synthesis of the bass drum sound                       | Strategy              | Antoine Mouille |
+| Synthesis of the snare drum sound                      | Strategy              | Antoine Mouille |
+| Synthesis of the cymbal sound                          | Strategy              | Antoine Mouille |
+| Synthesis of the triangle sound                        | Strategy              | Antoine Mouille |
+| Synthesis of the timpani sound                         | Strategy              | Antoine Mouille |
+| Synthesis of the xylophone sound                       | Strategy              | Antoine Mouille |
+| Definition of virtual instruments                      | Abstract Fabric       | Antoine/Ugo     |
 | Synthesis of the ensemble piece sound                  | Composite             |                 |
 | Command line management                                | Singleton             |                 |
 
