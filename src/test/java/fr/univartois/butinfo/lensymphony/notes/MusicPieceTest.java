@@ -1,7 +1,9 @@
 package fr.univartois.butinfo.lensymphony.notes;
-import fr.univartois.butinfo.lensymphony.synthesizer.Stave;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 public class MusicPieceTest {
@@ -9,11 +11,13 @@ public class MusicPieceTest {
 
     @BeforeEach
     void setUp() {
-        Stave stave1 = new Stave();
-        Stave stave2 = new Stave();
+        List<Note> notes = new ArrayList<>();
+
+        Score score1 = new Score(Instruments.XYLOPHONE,notes);
+        Score score2 = new Score(Instruments.BASS_DRUM,notes);
         piece = new MusicPiece();
-        piece.addStave(stave1);
-        piece.addStave(stave2);
+        piece.addStave(score1);
+        piece.addStave(score2);
     }
 
     @Test
