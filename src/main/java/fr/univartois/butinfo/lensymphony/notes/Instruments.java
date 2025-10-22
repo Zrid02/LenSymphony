@@ -71,17 +71,52 @@ public enum Instruments {
 
 	OCARINA(new HarmonicSynthesizerComplex(
 			new ADSRSynthesizer(
-					new VibratoSynthesizer(new PureSound(), 0.004, 3.5),
-					0.05, 0.05, 0.85, 0.6
+					new VibratoSynthesizer(new PureSound(), 0.003, 4.0),
+					0.08, 0.1, 0.75, 0.4
 			),
-			6,
+			8,
 			i -> i,
 			(i, t) -> {
 				if (i == 1) return 1.0;
-				if (i == 2) return 0.3;
-				return 0.15 / (i * i);
+				if (i == 2) return 0.4;
+				if (i == 3) return 0.25;
+				if (i == 4) return 0.15;
+				return 0.08 / (i * i);
+			}
+	)),
+
+	CELESTA(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(new PureSound(), 0.005, 0.2, 0.1, 1.2),
+			12,
+			i -> i,
+			(i, t) -> {
+				if (i == 1) return 1.0;
+				if (i == 2) return 0.6;
+				if (i == 3) return 0.4;
+				if (i == 4) return 0.3;
+				return Math.pow(0.65, i - 1) * Math.exp(-t * i * 0.8);
+			}
+	)),
+
+	BASSE(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(
+					new PureSound(),
+					0.01, 0.08, 0.4, 1.8
+			),
+			8,
+			i -> i,
+			(i, t) -> {
+				if (i == 1) return 1.0;
+				if (i == 2) return 0.7;
+				if (i == 3) return 0.5;
+				if (i == 4) return 0.35;
+				return 0.2 / i * Math.exp(-t * i * 0.6);
 			}
 	));
+
+
+
+
 
 	/**
 	 * The synthesizer used to generate the instrument's sound.

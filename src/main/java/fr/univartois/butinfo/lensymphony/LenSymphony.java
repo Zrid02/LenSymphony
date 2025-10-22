@@ -100,7 +100,7 @@ public final class LenSymphony {
                 continue;
             }
 
-            Score score = new Score(Instruments.FLUTE, notes);
+            Score score = new Score(Instruments.GUITARE_ELECTRIQUE, notes);
             musicPiece.addScore(score);
         }
 
