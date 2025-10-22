@@ -47,7 +47,7 @@ import fr.univartois.butinfo.lensymphony.notes.Note;
  *
  * @version 0.1.0
  */
-public class HarmonicSynthesizer extends SynthesizerDecorator {
+public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
 
     /**
      * The number of harmonics to generate (including the fundamental frequency).
@@ -94,10 +94,8 @@ public class HarmonicSynthesizer extends SynthesizerDecorator {
         double duration = note.getDuration(tempo) / 1000.0;
         int nbSample = (int) (duration * SAMPLE_RATE);
 
-        // Générer le son de base (fondamentale)
         double[] sounds = super.synthesize(note, tempo, volume);
 
-        // Ajouter les harmoniques supplémentaires (2, 3, 4, ..., n)
         for (int i = 0; i < nbSample; i++) {
             double t = (double) i / SAMPLE_RATE;
             double value = 0.0;

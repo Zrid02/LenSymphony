@@ -16,7 +16,7 @@ import java.util.Random;
  * <p>
  * where b is the noise amplitude.
  */
-public class WhiteNoiseSynthesizer extends SynthesizerDecorator {
+public class WhiteNoiseSynthesizer extends NoteSynthesizerDecorator {
 
     private final double noiseAmplitude;
     private final Random random;
