@@ -330,6 +330,17 @@ LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
 
+class HarmonicSynthesizerComplex {
+  - numberOfHarmonics: int
+  - h: IntUnaryOperator
+  - a: BiFunction\<Integer, Double, Double\>
+  + HarmonicSynthesizerComplex(synthesizer: NoteSynthesizer, numberOfHarmonics: int, h: IntUnaryOperator, a: BiFunction\<Integer, Double, Double\>)
+  + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+HarmonicSynthesizerComplex --|> NoteSynthesizerDecorator
+
+
 
 
 note right of NoteDecorator
