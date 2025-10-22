@@ -42,25 +42,54 @@ public enum Instruments {
 	/*
 	 A violin using 10 harmonics
 	 */
-	VIOLIN(new HarmonicSynthesizer(new ADSRSynthesizer(new VibratoSynthesizer(new PureSound(),0.01,5),0.1,0.2,0.7,0.3), 10)),
-
+	VIOLIN(new HarmonicSynthesizer(
+			new ADSRSynthesizer(
+					new VibratoSynthesizer(new PureSound(), 0.01, 5),
+					0.1, 0.2, 0.7, 0.3
+			),
+			10
+	)),
 	/*
 	A guitar using 8 harmonics
 	 */
 
-	GUITAR(new HarmonicSynthesizer(new ADSRSynthesizer(new VibratoSynthesizer(new PureSound(),0.02,3),0.008,0.05,0.2,2.5), 8)),
+	GUITAR(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(
+					new VibratoSynthesizer(new PureSound(), 0.02, 3),
+					0.008, 0.05, 0.2, 2.5
+			),
+			8,
+			i -> i,
+			(i, t) -> 1.5 / i
+	)),
 
 	/*
 	A piano using 10 harmonics
 	 */
 
-	PIANO(new HarmonicSynthesizer(new ADSRSynthesizer(new PureSound(),0.01,0.3,0.2,0.5),10)), // changed PureSound
+	PIANO(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(new PureSound(), 0.01, 0.3, 0.2, 0.5),
+			10,
+			i -> i,
+			(i, t) -> Math.exp(-2 * i * t) / i
+	)),
 
 	/*
 	A flute using harmonics odd
 	 */
 
-	FLUTE(new VibratoSynthesizer(new HarmonicSynthesizerComplex(new ADSRSynthesizer(new WhiteNoiseSynthesizer(new VibratoSynthesizer(new PureSound(),0.01,5), 0.003), 0.09, 0.0, 1.0, 0.3),5,i -> 2 * i - 1,(i, t) -> 1.0 / Math.sqrt(i)),0.01, 5.0	)),
+	FLUTE(new VibratoSynthesizer(
+			new HarmonicSynthesizerComplex(
+					new ADSRSynthesizer(
+							new WhiteNoiseSynthesizer(new PureSound(), 0.003),
+							0.09, 0.0, 1.0, 0.3
+					),
+					5,
+					i -> 2 * i - 1,
+					(i, t) -> 1.0 / Math.pow(3, i - 1)
+			),
+			0.01, 5.0
+	)),
 
 	HARP(new HarmonicSynthesizerComplex(
 			new ADSRSynthesizer(new PureSound(), 0.001, 0.1, 0.3, 1.5),
