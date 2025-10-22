@@ -8,8 +8,10 @@ import fr.univartois.butinfo.lensymphony.notes.Note;
  */
 public class ADSRSynthesizer extends NoteSynthesizerDecorator{
 
-    private int attack, decay, release;
-    private double sustain;
+    private double attack=0.0;
+    private double decay=0.0;
+    private double release=0.0;
+    private double sustain=0.0;
 
     /**
      * this constructer initialize the ADSR envelope
@@ -19,7 +21,7 @@ public class ADSRSynthesizer extends NoteSynthesizerDecorator{
      * @param sustain the sustain of the ADSR
      * @param release the release of the ADSR
      */
-    public ADSRSynthesizer(NoteSynthesizer synthesizer,int attack, int decay, double sustain, int release) {
+    public ADSRSynthesizer(NoteSynthesizer synthesizer,double attack, double decay, double sustain, double release) {
         super(synthesizer);
         this.attack=attack;
         this.decay=decay;
@@ -35,17 +37,17 @@ public class ADSRSynthesizer extends NoteSynthesizerDecorator{
      * @param volume the volume of the note
      * @return the new volume after the ADSR
      */
-    public double ADSREnvelope(double t,Note note, int tempo,double volume) {
-        int T = note.getDuration(tempo);
+    public double adsrEnvelope(double t,Note note, int tempo,double volume) {
+        int noteDuration = note.getDuration(tempo);
         double newVolume;
         if(t>=0 && t<attack){
             newVolume = t/attack;
         }else if(t>=attack && t<attack+decay){
             newVolume = 1-((t-attack)/decay)*(1-sustain);
-        }else if(t>=attack+decay && t<T-release){
+        }else if(t>=attack+decay && t<noteDuration-release){
              newVolume = sustain;
-        }else if(t>=T-release && t<T){
-            newVolume = sustain*(1-((t-(T-release))/release));
+        }else if(t>=noteDuration-release && t<noteDuration){
+            newVolume = sustain*(1-((t-(noteDuration-release))/release));
         }else{
             newVolume =0;
         }
@@ -58,16 +60,17 @@ public class ADSRSynthesizer extends NoteSynthesizerDecorator{
      * @param tempo  The tempo in beats per minute (BPM).
      * @param volume The volume level for the note (0.0 to 1.0).
      *
-     * @return
+     * @return the sound of the note after the synthesizer
      */
+    @Override
     public double[] synthesize(Note note, int tempo,double volume) {
             double[] sound = super.synthesize(note, tempo, volume);
-            int T = note.getDuration(tempo);
+            int noteDuration = note.getDuration(tempo);
             int n = sound.length;
 
             for(int i=0;i<n;i++){
-                double t = (double) T*i/n;
-                double envelope = ADSREnvelope(t, note, tempo, volume);
+                double t = (double) noteDuration*i/n;
+                double envelope = adsrEnvelope(t, note, tempo, volume);
 
                 sound[i]*=envelope;
 
