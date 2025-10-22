@@ -58,21 +58,21 @@ public class HarmonicSynthesizerComplex extends NoteSynthesizerDecorator{
     @Override
     public double[] synthesize(Note note, int tempo, double volume) {
         double frequency = note.getFrequency();
+        double[] sounds = super.synthesize(note, tempo, volume);
+
 
         if (frequency <= 0) {
-            return new double[0];
+            return sounds;
         }
 
         double duration = note.getDuration(tempo) / 1000.0;
         int nbSample = (int) (duration * SAMPLE_RATE);
-        double[] sounds = super.synthesize(note, tempo, volume);
-
 
         for (int i = 0; i < nbSample; i++) {
             double t = (double) i / SAMPLE_RATE;
-            double value = 0.0;
+            double value = sounds[i];
 
-            for (int harmonic = 1; harmonic <= numberOfHarmonics; harmonic++) {
+            for (int harmonic = 2; harmonic <= numberOfHarmonics; harmonic++) {
                 int indexHarmonic = h.applyAsInt(harmonic); // get harmonic index using function h
                 double amplitude = a.apply(harmonic, t); // get amplitude using function a
                 value += amplitude * Math.sin(2 * Math.PI * indexHarmonic * frequency * t);
