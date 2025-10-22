@@ -60,7 +60,7 @@ public enum Instruments {
 	A flute using harmonics odd
 	 */
 
-	FLOTE(new HarmonicSynthesizer(new PureSound(), 9)); // changed PureSound
+	FLUTE(new VibratoSynthesizer(new HarmonicSynthesizerComplex(new ADSRSynthesizer(new WhiteNoiseSynthesizer(new VibratoSynthesizer(new PureSound(),0.01,5), 0.003), 0.09, 0.0, 1.0, 0.3),5,i -> 2 * i - 1,(i, t) -> 1.0 / Math.sqrt(i)),0.01, 5.0	));
 
 	/**
 	 * The synthesizer used to generate the instrument's sound.

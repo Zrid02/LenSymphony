@@ -92,6 +92,7 @@ public final class LenSymphony {
         MusicPiece musicPiece = new MusicPiece(handler.getTempo());
 
         Map<String, List<Note>> listePartitions = handler.getParts();
+        System.out.println(listePartitions);
 
         for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
             List<Note> notes = entry.getValue();
@@ -99,7 +100,7 @@ public final class LenSymphony {
                 continue;
             }
 
-            Score score = new Score(Instruments.XYLOPHONE, notes);
+            Score score = new Score(Instruments.FLUTE, notes);
             musicPiece.addScore(score);
         }
 
