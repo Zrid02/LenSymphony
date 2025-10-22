@@ -60,7 +60,28 @@ public enum Instruments {
 	A flute using harmonics odd
 	 */
 
-	FLUTE(new VibratoSynthesizer(new HarmonicSynthesizerComplex(new ADSRSynthesizer(new WhiteNoiseSynthesizer(new VibratoSynthesizer(new PureSound(),0.01,5), 0.003), 0.09, 0.0, 1.0, 0.3),5,i -> 2 * i - 1,(i, t) -> 1.0 / Math.sqrt(i)),0.01, 5.0	));
+	FLUTE(new VibratoSynthesizer(new HarmonicSynthesizerComplex(new ADSRSynthesizer(new WhiteNoiseSynthesizer(new VibratoSynthesizer(new PureSound(),0.01,5), 0.003), 0.09, 0.0, 1.0, 0.3),5,i -> 2 * i - 1,(i, t) -> 1.0 / Math.sqrt(i)),0.01, 5.0	)),
+
+	HARP(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(new PureSound(), 0.001, 0.1, 0.3, 1.5),
+			10,
+			i -> i,
+			(i, t) -> Math.pow(0.7, i - 1) * Math.exp(-t * (i - 1) * 0.5)
+	)),
+
+	OCARINA(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(
+					new VibratoSynthesizer(new PureSound(), 0.004, 3.5),
+					0.05, 0.05, 0.85, 0.6
+			),
+			6,
+			i -> i,
+			(i, t) -> {
+				if (i == 1) return 1.0;
+				if (i == 2) return 0.3;
+				return 0.15 / (i * i);
+			}
+	));
 
 	/**
 	 * The synthesizer used to generate the instrument's sound.
