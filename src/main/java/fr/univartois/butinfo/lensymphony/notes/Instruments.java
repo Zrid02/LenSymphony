@@ -1,8 +1,6 @@
 package fr.univartois.butinfo.lensymphony.notes;
 
-import fr.univartois.butinfo.lensymphony.synthesizer.HarmonicSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.PureSound;
+import fr.univartois.butinfo.lensymphony.synthesizer.*;
 
 /**
  * An enumeration of musical instruments that can be used to play notes.
@@ -50,13 +48,13 @@ public enum Instruments {
 	A guitar using 8 harmonics
 	 */
 
-	GUITAR(new HarmonicSynthesizer(new PureSound(), 8)), // changed PureSound
+	GUITAR(new HarmonicSynthesizer(new ADSRSynthesizer(new VibratoSynthesizer(new PureSound(),0.02,3),0.008,0.05,0.2,2.5), 8)),
 
 	/*
 	A piano using 10 harmonics
 	 */
 
-	PIANO(new HarmonicSynthesizer(new PureSound(), 10)), // changed PureSound
+	PIANO(new HarmonicSynthesizer(new ADSRSynthesizer(new PureSound(),0.01,0.3,0.2,0.5),10)), // changed PureSound
 
 	/*
 	A flute using harmonics odd
