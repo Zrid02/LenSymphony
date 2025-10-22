@@ -43,11 +43,11 @@ import fr.univartois.butinfo.lensymphony.notes.Note;
  * Adding harmonics produces a richer, more natural sound compared to a pure sine wave.
  * The more harmonics included, the more complex and instrument-like the tone becomes.
  *
- * @author Romain Wallon
+ * @author Rabhi Nessim
  *
  * @version 0.1.0
  */
-public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
+public class HarmonicSynthesizer extends SynthesizerDecorator {
 
     /**
      * The number of harmonics to generate (including the fundamental frequency).
@@ -74,8 +74,8 @@ public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
     /**
      * Synthesizes the given note with harmonics to create a richer sound.
      * <p>
-     * If the note's frequency is 0 or negative (representing silence), delegates to
-     * the base synthesizer. Otherwise, applies the harmonic synthesis formula.
+     * If the note's frequency is 0 or negative (representing silence), returns empty array.
+     * Otherwise, delegates to the base synthesizer and adds harmonics (from 2 to n).
      *
      * @param note   The note to synthesize.
      * @param tempo  The tempo in beats per minute (BPM).
@@ -93,9 +93,11 @@ public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
 
         double duration = note.getDuration(tempo) / 1000.0;
         int nbSample = (int) (duration * SAMPLE_RATE);
+
+        // Générer le son de base (fondamentale)
         double[] sounds = super.synthesize(note, tempo, volume);
 
-
+        // Ajouter les harmoniques supplémentaires (2, 3, 4, ..., n)
         for (int i = 0; i < nbSample; i++) {
             double t = (double) i / SAMPLE_RATE;
             double value = 0.0;
@@ -104,11 +106,9 @@ public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
                 value += Math.sin(2 * Math.PI * harmonic * frequency * t) / Math.sqrt(harmonic);
             }
 
-            sounds[i] = (1. / numberOfHarmonics) * value;
+            sounds[i] += (1. / numberOfHarmonics) * value;
         }
 
         return sounds;
     }
 }
-
-
