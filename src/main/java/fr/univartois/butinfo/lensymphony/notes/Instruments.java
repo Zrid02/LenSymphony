@@ -8,7 +8,7 @@ import fr.univartois.butinfo.lensymphony.synthesizer.PureSound;
  * An enumeration of musical instruments that can be used to play notes.
  * Each instrument has its own synthesizer that defines how its notes should sound.
  *
- * @author antoine mouille & Dassonville Ugo
+ * @author Mouille Antoine, Rabhi Nessim & Dassonville Ugo
  */
 public enum Instruments {
 	/**
@@ -39,7 +39,30 @@ public enum Instruments {
 	/**
 	 * A xylophone using 8 harmonics.
 	 */
-	XYLOPHONE(new HarmonicSynthesizer(new PureSound(), 8));
+	XYLOPHONE(new HarmonicSynthesizer(new PureSound(), 8)),
+
+	/*
+	 A violin using 10 harmonics
+	 */
+	VIOLIN(new HarmonicSynthesizer(new PureSound(), 10)), // changed PureSound
+
+	/*
+	A guitar using 8 harmonics
+	 */
+
+	GUITAR(new HarmonicSynthesizer(new PureSound(), 8)), // changed PureSound
+
+	/*
+	A piano using 10 harmonics
+	 */
+
+	PIANO(new HarmonicSynthesizer(new PureSound(), 10)), // changed PureSound
+
+	/*
+	A flute using harmonics odd
+	 */
+
+	FLOTE(new HarmonicSynthesizer(new PureSound(), 9)); // changed PureSound
 
 	/**
 	 * The synthesizer used to generate the instrument's sound.
