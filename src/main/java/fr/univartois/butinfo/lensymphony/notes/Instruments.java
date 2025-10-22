@@ -42,7 +42,7 @@ public enum Instruments {
 	/*
 	 A violin using 10 harmonics
 	 */
-	VIOLIN(new HarmonicSynthesizer(new PureSound(), 10)), // changed PureSound
+	VIOLIN(new HarmonicSynthesizer(new ADSRSynthesizer(new VibratoSynthesizer(new PureSound(),0.01,5),0.1,0.2,0.7,0.3), 10)),
 
 	/*
 	A guitar using 8 harmonics
