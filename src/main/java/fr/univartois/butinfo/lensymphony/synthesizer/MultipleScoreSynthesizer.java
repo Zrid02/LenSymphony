@@ -34,6 +34,11 @@ public class MultipleScoreSynthesizer implements MusicSynthesizer {
 		}
 	}
 
+	/**
+	 * Generates the audio samples by combining all the synthesizers.
+	 * Each synthesizer is synthesized and their maximum length is used to create
+	 * the combined samples array.
+	 */
 	@Override
 	public void synthesize() {
 		for (MusicSynthesizer synth : synthetizers) {
@@ -50,6 +55,12 @@ public class MultipleScoreSynthesizer implements MusicSynthesizer {
 		samples = new double[maxLen];
 	}
 
+	/**
+	 * Gets the combined audio samples from all synthesizers.
+	 * The samples are averaged by dividing each sample by the number of synthesizers.
+	 *
+	 * @return The averaged audio samples from all synthesizers
+	 */
 	@Override
 	public double[] getSamples() {
 		int count = synthetizers.size();
