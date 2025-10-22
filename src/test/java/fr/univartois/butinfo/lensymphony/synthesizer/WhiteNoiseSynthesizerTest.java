@@ -1,8 +1,6 @@
 package fr.univartois.butinfo.lensymphony.synthesizer;
 
 import fr.univartois.butinfo.lensymphony.notes.*;
-import fr.univartois.butinfo.lensymphony.synthesizer.*;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
