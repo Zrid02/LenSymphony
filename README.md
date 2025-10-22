@@ -346,7 +346,7 @@ HarmonicSynthesizerComplex --|> NoteSynthesizerDecorator
 note right of NoteDecorator
   Decorator pattern base class.
   Delegates all operations to
-  the wrapped note by default.
+  the wrapped note by defalt.
 end note
 
 note right of DottedNote
