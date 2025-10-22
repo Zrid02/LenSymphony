@@ -161,15 +161,24 @@
         <key>
           <fifths>0</fifths>
           </key>
-        <time symbol="cut">
-          <beats>2</beats>
-          <beat-type>2</beat-type>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
           </time>
         <clef>
           <sign>G</sign>
           <line>2</line>
           </clef>
         </attributes>
+      <direction placement="above" system="only-top">
+        <direction-type>
+          <metronome parentheses="no">
+            <beat-unit>quarter</beat-unit>
+            <per-minute>250</per-minute>
+            </metronome>
+          </direction-type>
+        <sound tempo="200"/>
+        </direction>
       <note>
         <rest measure="yes"/>
         <duration>8</duration>
@@ -1606,9 +1615,9 @@
         <key>
           <fifths>0</fifths>
           </key>
-        <time symbol="cut">
-          <beats>2</beats>
-          <beat-type>2</beat-type>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
           </time>
         <clef>
           <sign>G</sign>
@@ -2189,9 +2198,9 @@
         <key>
           <fifths>0</fifths>
           </key>
-        <time symbol="cut">
-          <beats>2</beats>
-          <beat-type>2</beat-type>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
           </time>
         <clef>
           <sign>percussion</sign>
@@ -2589,9 +2598,9 @@
         <key>
           <fifths>0</fifths>
           </key>
-        <time symbol="cut">
-          <beats>2</beats>
-          <beat-type>2</beat-type>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
           </time>
         <clef>
           <sign>percussion</sign>
@@ -3057,10 +3066,9 @@
       </measure>
     <measure number="27">
       <note>
-        <rest/>
+        <rest measure="yes"/>
         <duration>8</duration>
         <voice>1</voice>
-        <type>whole</type>
         </note>
       </measure>
     <measure number="28">
@@ -3357,9 +3365,9 @@
         <key>
           <fifths>0</fifths>
           </key>
-        <time symbol="cut">
-          <beats>2</beats>
-          <beat-type>2</beat-type>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
           </time>
         <clef>
           <sign>percussion</sign>
@@ -4592,9 +4600,9 @@
         <key>
           <fifths>0</fifths>
           </key>
-        <time symbol="cut">
-          <beats>2</beats>
-          <beat-type>2</beat-type>
+        <time>
+          <beats>4</beats>
+          <beat-type>4</beat-type>
           </time>
         <clef>
           <sign>percussion</sign>
@@ -4605,10 +4613,9 @@
           </staff-details>
         </attributes>
       <note>
-        <rest/>
+        <rest measure="yes"/>
         <duration>8</duration>
         <voice>1</voice>
-        <type>whole</type>
         </note>
       </measure>
     <measure number="2">
@@ -4711,10 +4718,9 @@
       </measure>
     <measure number="16">
       <note>
-        <rest/>
+        <rest measure="yes"/>
         <duration>8</duration>
         <voice>1</voice>
-        <type>whole</type>
         </note>
       </measure>
     <measure number="17">
