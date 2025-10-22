@@ -374,6 +374,18 @@ class HarmonicSynthesizerComplex {
   + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class ADSRSynthesizer extends NoteSynthesizerDecorator{
+   - attack: double
+   - decay: double
+   - sustain: double
+   - release: double
+   + ADSRSynthesizer(synthesizer: NoteSynthesizer, attack: double, decay: double, sustain: double, release: double)
+   + adsrEnvelope(note: Note, tempo: int): double[]
+   + synthesize(note: Note, tempo: int, volume: double): double[]
+   
+}
+
+
 HarmonicSynthesizerComplex --|> NoteSynthesizerDecorator
 
 
@@ -414,6 +426,19 @@ package "tests" <<Rectangle>> {
     + nullSynthesizer_throwsException()
     + negativeDepth_throwsException()
     + combineEffects()
+  }
+  
+  class ADSRTest <<test>> {
+    - adsr : ADSRSynthesizer
+    - mockSynth: NoteSynthesizer
+    - note: Note
+    + setUp(): void
+    + testAttackPhase(): void
+    + testDecayPhase(): void
+    + testSustainPhase(): void
+    + testReleasePhase(): void
+    + testAfterNoteEnd(): void
+    + testSynthesizeModifiesSignal(): void
   }
 }
 
