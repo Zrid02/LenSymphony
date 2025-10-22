@@ -196,17 +196,26 @@ MusicXMLSaxParser --> AbstractNoteFactory : << uses >>
 ' -------------- '
 
 enum Instruments {
-    + BASS_DRUM
-    + SNARE_DRUM
-    + CYMBAL
-    + TRIANGLE
-    + TIMPANI
-    + XYLOPHONE
-    - synthesizer: NoteSynthesizer
-    
-    + getSynthesizer(): NoteSynthesizer
-    ~ Instruments(synthesizer: NoteSynthesizer)
+  + BASS_DRUM
+  + SNARE_DRUM
+  + CYMBAL
+  + TRIANGLE
+  + TIMPANI
+  + XYLOPHONE
+  + VIOLIN
+  + GUITAR
+  + PIANO
+  + FLUTE
+  + TRUMPET
+  + HARP
+  + BANJO
+  + CLARINET
+  + OCARINA
+  + synthesizer: NoteSynthesizer
+  + getSynthesizer(): NoteSynthesizer
+  + Instruments(synthesize: NoteSynthesizer)
 }
+
 
 class Score {
     - notes: List<Note>
@@ -262,11 +271,10 @@ class WhiteNoiseSynthesizer {
 }
 
 class VibratoSynthesizer {
-    - depth: double
-    - speed: double
-    
-    + VibratoSynthesizer(synthesizer: NoteSynthesizer, depth: double, speed: double)
-    + synthesize(note: Note, tempo: int, volume: double): double[]
+  - d: double
+  - s: double
+  + VibratoSynthesizer(synthesizer: NoteSynthesizer, depth: double, speed: double)
+  + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
 ' Relations Synthesizers
@@ -279,8 +287,8 @@ SynthesizerDecorator --|> NoteSynthesizerDecorator
 
 HarmonicSynthesizer --|> SynthesizerDecorator
 WhiteNoiseSynthesizer --|> SynthesizerDecorator
-VibratoSynthesizer --|> SynthesizerDecorator
-
+VibratoSynthesizer --|> NoteSynthesizerDecorator
+VibratoSynthesizer ..> Note : uses
 ' --------------- '
 ' Music synthesis '
 ' --------------- '
