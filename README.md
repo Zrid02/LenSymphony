@@ -366,9 +366,17 @@ LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
 
-' ----- '
-' Tests '
-' ----- '
+class HarmonicSynthesizerComplex {
+  - numberOfHarmonics: int
+  - h: IntUnaryOperator
+  - a: BiFunction\<Integer, Double, Double\>
+  + HarmonicSynthesizerComplex(synthesizer: NoteSynthesizer, numberOfHarmonics: int, h: IntUnaryOperator, a: BiFunction\<Integer, Double, Double\>)
+  + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+HarmonicSynthesizerComplex --|> NoteSynthesizerDecorator
+
+
 
 package "tests" <<Rectangle>> {
   class PitchedNoteTest <<test>> {
