@@ -17,7 +17,7 @@ public enum Instruments {
 	/**
 	 * A snare drum using 4 harmonics.
 	 */
-	SNARE_DRUM(new HarmonicSynthesizer(new PureSound(), 4)),
+	SNARE_DRUM(new SnareDrumSynthesizer( 0.01)),
 
 	/**
 	 * A cymbal using 5 harmonics.
@@ -27,7 +27,7 @@ public enum Instruments {
 	/**
 	 * A triangle using 6 harmonics.
 	 */
-	TRIANGLE(new HarmonicSynthesizer(new PureSound(), 6)),
+	TRIANGLE(new TriangleSynthesizer(10)),
 
 	/**
 	 * A timpani using 7 harmonics.
@@ -37,7 +37,7 @@ public enum Instruments {
 	/**
 	 * A xylophone using 8 harmonics.
 	 */
-	XYLOPHONE(new HarmonicSynthesizer(new PureSound(), 8)),
+	XYLOPHONE(new XylophoneSynthesizer(8,5)), //BaseFrequency on s'en fout un peu
 
 	/*
 	 A violin using 10 harmonics
