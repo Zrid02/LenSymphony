@@ -93,14 +93,31 @@ public final class LenSymphony {
 
         Map<String, List<Note>> listePartitions = handler.getParts();
         System.out.println(listePartitions);
-
+        int i = 0;
         for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
+            i++;
             List<Note> notes = entry.getValue();
             if (notes == null) {
                 continue;
             }
-
-            Score score = new Score(Instruments.BASS_DRUM, notes);
+            Score score = null;
+            switch (i) {
+                case 1,2 :
+                    score = new Score(Instruments.XYLOPHONE, notes);
+                    break;
+                case 3 :
+                    score = new Score(Instruments.TRIANGLE, notes);
+                    break;
+                case 4 :
+                    score = new Score(Instruments.SNARE_DRUM, notes);
+                    break;
+                case 5 :
+                    score = new Score(Instruments.BASS_DRUM, notes);
+                    break;
+                case 6 :
+                    score = new Score(Instruments.CYMBAL, notes);
+                    break;
+            }
             musicPiece.addScore(score);
         }
 
