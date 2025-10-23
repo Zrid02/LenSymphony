@@ -25,16 +25,17 @@ public class SnareDrumSynthesizer implements NoteSynthesizer{
      * @param t a given instant time
      * @return the envelope at an instant time
      */
-    public double envelope(double t){
-        double e;
-
+    public double envelope(double t, double volume){
+        double newVolume;
         if(t<attack){
-             e = t/attack;
+             newVolume= t/attack;
+        }else if(t>=attack){
+            newVolume = Math.exp(15*(attack-t));
         }else{
-            e = Math.exp(15*(attack-t));
+            newVolume = 0;
         }
 
-        return e;
+        return newVolume*volume;
     }
 
     /**
@@ -47,11 +48,19 @@ public class SnareDrumSynthesizer implements NoteSynthesizer{
      */
     @Override
     public double[] synthesize(Note note, int tempo, double volume) {
-        int noteDuration = note.getDuration(tempo);
-        double[] sounds = new double[noteDuration];
 
-        for(int i=0; i<noteDuration; i++){
-            sounds[i] = volume * envelope(i) * random.nextDouble(-1,1) ;
+        double noteDuration = note.getDuration(tempo)/1000.0;
+
+        int nbSample = (int) (noteDuration*SAMPLE_RATE);
+
+        double[] sounds = new double[nbSample];
+
+
+
+        for(int i=0; i<nbSample; i++){
+            double t = (double) i/SAMPLE_RATE;
+            double r = random.nextDouble()*2.0-1.0;
+            sounds[i] = volume* envelope(t,volume) * r ;
         }
 
         return sounds;
