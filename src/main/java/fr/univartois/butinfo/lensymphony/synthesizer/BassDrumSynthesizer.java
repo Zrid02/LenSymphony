@@ -70,6 +70,15 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
     private final double decayRate;
 
     /**
+     * Creates a new instance of BassDrumSynthesizer with default parameters.
+     *
+     * @return A new BassDrumSynthesizer instance.
+     */
+    public static BassDrumSynthesizer getInstance(){
+        return new BassDrumSynthesizer();
+    }
+
+    /**
      * Creates a new bass drum synthesizer with default parameters.
      * <ul>
      *   <li>Start frequency: 60 Hz</li>
@@ -106,6 +115,7 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
         this.endFrequency = endFrequency;
         this.decayRate = decayRate;
     }
+
 
     /**
      * Synthesizes a bass drum sound for the given note.
