@@ -23,6 +23,7 @@ public class SnareDrumSynthesizer implements NoteSynthesizer{
     /**
      * this method calculate the envelope of the sound at an instant time
      * @param t a given instant time
+     * @param volume the volume of the instruments
      * @return the envelope at an instant time
      */
     public double envelope(double t, double volume){
