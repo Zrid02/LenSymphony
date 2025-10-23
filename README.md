@@ -244,6 +244,16 @@ class PureSound {
     + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class BassDrumSynthesizer {
+    - startFrequency: double
+    - endFrequency: double
+    - decayRate: double
+    
+    + BassDrumSynthesizer()
+    + BassDrumSynthesizer(startFrequency: double, endFrequency: double, decayRate: double)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
 abstract class NoteSynthesizerDecorator {
     # synthesizer: NoteSynthesizer
     
@@ -279,6 +289,7 @@ class VibratoSynthesizer {
 
 ' Relations Synthesizers
 PureSound ..|> NoteSynthesizer
+BassDrumSynthesizer ..|> NoteSynthesizer
 
 NoteSynthesizerDecorator ..|> NoteSynthesizer
 NoteSynthesizerDecorator o--> NoteSynthesizer : decorates
@@ -448,6 +459,16 @@ package "tests" <<Rectangle>> {
     + testAfterNoteEnd(): void
     + testSynthesizeModifiesSignal(): void
   }
+  
+  class BassDrumSynthesizerTest <<test>> {
+    + createBassDrumSynthesizer()
+    + synthesizeBassDrum()
+    + exponentialDecay()
+    + differentTemposProduceDifferentFrequencies()
+    + invalidStartFrequency_throwsException()
+    + invalidEndFrequency_throwsException()
+    + invalidDecayRate_throwsException()
+  }
 }
 
 PitchedNoteTest ..> PitchedNote : tests
@@ -569,6 +590,18 @@ note right of Instruments
   Each instrument has its own
   NoteSynthesizer for specific
   sound characteristics.
+end note
+
+note right of BassDrumSynthesizer
+  Bass drum synthesizer with:
+  • Variable frequency
+  • Exponential decay
+  
+  Formula:
+  f = fstart + tempo·(fend-fstart)/decay
+  s(t) = V · exp(-decay·t) · sin(2π·f·t)
+  
+  Used for percussion sounds.
 end note
 
 

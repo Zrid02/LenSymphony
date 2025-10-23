@@ -100,7 +100,7 @@ public final class LenSymphony {
                 continue;
             }
 
-            Score score = new Score(Instruments.PIANO, notes);
+            Score score = new Score(Instruments.BASS_DRUM, notes);
             musicPiece.addScore(score);
         }
 

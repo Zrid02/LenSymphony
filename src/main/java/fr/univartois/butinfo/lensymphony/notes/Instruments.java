@@ -12,7 +12,7 @@ public enum Instruments {
 	/**
 	 * A bass drum using pure sound synthesis.
 	 */
-	BASS_DRUM(new PureSound()),
+	BASS_DRUM(new BassDrumSynthesizer()),
 
 	/**
 	 * A snare drum using 4 harmonics.
