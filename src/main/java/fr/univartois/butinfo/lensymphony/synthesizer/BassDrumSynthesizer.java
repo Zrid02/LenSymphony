@@ -104,6 +104,8 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      */
 
 
+
+
     /**
      * Synthesizes a bass drum sound for the given note.
      * <p>
@@ -123,6 +125,7 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      * @return An array of audio samples representing the bass drum sound.
      *         Returns an empty array if the calculated frequency is not positive.
      */
+
     @Override
     public double[] synthesize(Note note, int tempo, double volume) {
 
@@ -140,7 +143,7 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
             double frequency = startFrequency + (t * (endFrequency - startFrequency) / duration);
 
             if (frequency <= 0) {
-                return new double[0];
+                return sounds;
             }
 
             // Calculate exponential decay envelope: exp(-decayRate · t)
