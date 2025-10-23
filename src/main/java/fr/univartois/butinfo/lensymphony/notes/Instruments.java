@@ -42,37 +42,37 @@ public enum Instruments {
 	/*
 	 A violin using 10 harmonics
 	 */
-	VIOLIN(new HarmonicSynthesizer(
-			new ADSRSynthesizer(
-					new VibratoSynthesizer(new PureSound(), 0.01, 5),
-					0.1, 0.2, 0.7, 0.3
+	VIOLIN(new VibratoSynthesizer(
+			new ADSRSynthesizer(new HarmonicSynthesizer(new PureSound(), 10),0.1, 0.2, 0.7, 0.3
 			),
-			10
+			0.01,5
 	)),
 	/*
 	A guitar using 8 harmonics
 	 */
 
-	GUITAR(new HarmonicSynthesizerComplex(
+	GUITAR(new VibratoSynthesizer(
 			new ADSRSynthesizer(
-					new VibratoSynthesizer(new PureSound(), 0.02, 3),
+					new HarmonicSynthesizer(new PureSound(), 8),
 					0.008, 0.05, 0.2, 2.5
 			),
-			8,
-			i -> i,
-			(i, t) -> 1.5 / i
-	)),
+			0.02,3)
+	),
 
 	/*
 	A piano using 10 harmonics
 	 */
 
-	PIANO(new HarmonicSynthesizerComplex(
-			new ADSRSynthesizer(new PureSound(), 0.01, 0.3, 0.2, 0.5),
-			10,
-			i -> i,
-			(i, t) -> Math.exp(-2 * i * t) / i
+	PIANO(new ADSRSynthesizer(
+			new HarmonicSynthesizerComplex(
+					new PureSound(),
+					10,
+					i -> i,
+					(i, t) -> Math.exp(-2 * i * t) / i
+			),
+			0.01, 0.3, 0.2, 0.5
 	)),
+
 
 	/*
 	A flute using harmonics odd
@@ -96,51 +96,6 @@ public enum Instruments {
 			10,
 			i -> i,
 			(i, t) -> Math.pow(0.7, i - 1) * Math.exp(-t * (i - 1) * 0.5)
-	)),
-
-	OCARINA(new HarmonicSynthesizerComplex(
-			new ADSRSynthesizer(
-					new VibratoSynthesizer(new PureSound(), 0.003, 4.0),
-					0.08, 0.1, 0.75, 0.4
-			),
-			8,
-			i -> i,
-			(i, t) -> {
-				if (i == 1) return 1.0;
-				if (i == 2) return 0.4;
-				if (i == 3) return 0.25;
-				if (i == 4) return 0.15;
-				return 0.08 / (i * i);
-			}
-	)),
-
-	CELESTA(new HarmonicSynthesizerComplex(
-			new ADSRSynthesizer(new PureSound(), 0.005, 0.2, 0.1, 1.2),
-			12,
-			i -> i,
-			(i, t) -> {
-				if (i == 1) return 1.0;
-				if (i == 2) return 0.6;
-				if (i == 3) return 0.4;
-				if (i == 4) return 0.3;
-				return Math.pow(0.65, i - 1) * Math.exp(-t * i * 0.8);
-			}
-	)),
-
-	BASSE(new HarmonicSynthesizerComplex(
-			new ADSRSynthesizer(
-					new PureSound(),
-					0.01, 0.08, 0.4, 1.8
-			),
-			8,
-			i -> i,
-			(i, t) -> {
-				if (i == 1) return 1.0;
-				if (i == 2) return 0.7;
-				if (i == 3) return 0.5;
-				if (i == 4) return 0.35;
-				return 0.2 / i * Math.exp(-t * i * 0.6);
-			}
 	));
 
 
