@@ -18,7 +18,7 @@ public class TriangleSynthesizerTest {
 
         int tempo = 120;
         double volume = 0.7;
-        TriangleSynthesizer ts = new TriangleSynthesizer(6);
+        TriangleSynthesizer ts = TriangleSynthesizer.getInstance();
 
         double[] samples = ts.synthesize(note, tempo, volume);
 
