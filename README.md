@@ -288,6 +288,23 @@ class VibratoSynthesizer {
   + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class TriangleSynthesizer {
+  - int n = 8
+  - static final TriangleSynthesizer INSTANCE
+  - TriangleSynthesizer()
+  + static TriangleSynthesizer getInstance()
+  + double[] synthesize(Note note, int tempo, double volume)
+}
+
+class XylophoneSynthesizer {
+  - final int harmonics = 8
+  - static final XylophoneSynthesizer INSTANCE
+  - final double baseFrequency = 3.0
+  - XylophoneSynthesizer()
+  + static XylophoneSynthesizer getInstance()
+  + double[] synthesize(Note note, int tempo, double volume)
+}
+
 ' Relations Synthesizers
 PureSound ..|> NoteSynthesizer
 BassDrumSynthesizer ..|> NoteSynthesizer
@@ -301,6 +318,10 @@ HarmonicSynthesizer --|> SynthesizerDecorator
 WhiteNoiseSynthesizer --|> SynthesizerDecorator
 VibratoSynthesizer --|> NoteSynthesizerDecorator
 VibratoSynthesizer ..> Note : uses
+TriangleSynthesizer ..|> NoteSynthesizer
+TriangleSynthesizer --> Note : uses
+XylophoneSynthesizer ..|> NoteSynthesizer
+XylophoneSynthesizer --> Note : uses
 ' --------------- '
 ' Music synthesis '
 ' --------------- '
@@ -649,10 +670,10 @@ end note
 | Representation of a musical piece                      | Composite             |                 |
 | Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
 | Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
-| Addition of harmonics to the sound of a note           | Decorator             | Rab i Nessim    |
-| Application of an ADSR envelope to the sound of a note | Decorator             |                 |
-| Application of a vibrato to the sound of a note        | Decorator             |                 |
-| Addition of random noise to the sound of a note        | Decorator             |                 |
+| Addition of harmonics to the sound of a note           | Decorator             | Rabhi Nessim    |
+| Application of an ADSR envelope to the sound of a note | Decorator             | Mouille Antoine |
+| Application of a vibrato to the sound of a note        | Decorator             | Dassonville Ugo |
+| Addition of random noise to the sound of a note        | Decorator             | Rabhi Nessim    |
 | Synthesis of the bass drum sound                       | Strategy              | Antoine Mouille |
 | Synthesis of the snare drum sound                      | Strategy              | Antoine Mouille |
 | Synthesis of the cymbal sound                          | Strategy              | Antoine Mouille |
