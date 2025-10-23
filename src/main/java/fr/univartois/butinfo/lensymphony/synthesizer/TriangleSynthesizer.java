@@ -3,11 +3,9 @@ package fr.univartois.butinfo.lensymphony.synthesizer;
 import fr.univartois.butinfo.lensymphony.notes.Note;
 
 public class TriangleSynthesizer implements NoteSynthesizer{
-	private NoteSynthesizer synthesizer;
 	private int n;
 
-	public TriangleSynthesizer(NoteSynthesizer synthesizer, int n) {
-		this.synthesizer = synthesizer;
+	public TriangleSynthesizer( int n) {
 		this.n=n;
 	}
 
