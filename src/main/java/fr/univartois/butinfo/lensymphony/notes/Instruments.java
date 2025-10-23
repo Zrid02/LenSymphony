@@ -27,7 +27,7 @@ public enum Instruments {
 	/**
 	 * A triangle using 6 harmonics.
 	 */
-	TRIANGLE(new HarmonicSynthesizer(new PureSound(), 6)),
+	TRIANGLE(new TriangleSynthesizer(new PureSound(), 10)),
 
 	/**
 	 * A timpani using 7 harmonics.
