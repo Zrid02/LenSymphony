@@ -22,7 +22,7 @@ public enum Instruments {
 	/**
 	 * A cymbal using 5 harmonics.
 	 */
-	CYMBAL(new HarmonicSynthesizer(new PureSound(), 5)),
+	CYMBAL(CymbaleSynthesizer.getInstance()),
 
 	/**
 	 * A triangle using 6 harmonics.
