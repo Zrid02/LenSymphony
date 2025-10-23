@@ -245,12 +245,13 @@ class PureSound {
 }
 
 class BassDrumSynthesizer {
-    - startFrequency: double
-    - endFrequency: double
-    - decayRate: double
+    - {static} INSTANCE: BassDrumSynthesizer
+    - startFrequency: double = 60.0
+    - endFrequency: double = 40.0
+    - decayRate: double = 5.0
     
-    + BassDrumSynthesizer()
-    + BassDrumSynthesizer(startFrequency: double, endFrequency: double, decayRate: double)
+    - BassDrumSynthesizer()
+    + {static} getInstance(): BassDrumSynthesizer
     + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
@@ -461,13 +462,12 @@ package "tests" <<Rectangle>> {
   }
   
   class BassDrumSynthesizerTest <<test>> {
-    + createBassDrumSynthesizer()
-    + synthesizeBassDrum()
-    + exponentialDecay()
-    + differentTemposProduceDifferentFrequencies()
-    + invalidStartFrequency_throwsException()
-    + invalidEndFrequency_throwsException()
-    + invalidDecayRate_throwsException()
+    + getInstanceReturnsSameInstance()
+    + synthesizeBassDrumQuarterNote()
+    + exponentialDecayOverTime()
+    + volumeAffectsAmplitude()
+    + differentTempusProduceDifferentDurations()
+    + allSamplesWithinValidRange()
   }
 }
 
@@ -476,6 +476,7 @@ ScoreTest ..> Score : tests
 HarmonicSynthesizerTest ..> HarmonicSynthesizer : tests
 WhiteNoiseSynthesizerTest ..> WhiteNoiseSynthesizer : tests
 VibratoSynthesizerTest ..> VibratoSynthesizer : tests
+BassDrumSynthesizerTest ..> BassDrumSynthesizer : tests
 
 ' --------------- '
 ' Design patterns '
@@ -593,15 +594,30 @@ note right of Instruments
 end note
 
 note right of BassDrumSynthesizer
-  Bass drum synthesizer with:
-  • Variable frequency
-  • Exponential decay
+  **Singleton Pattern + Strategy**
+  ═════════════════════════════════
+  Bass drum with:
+  • Variable frequency: f(t) = 60 + t·(40-60)/D
+  • Exponential decay: exp(-5t)
   
   Formula:
-  f = fstart + tempo·(fend-fstart)/decay
-  s(t) = V · exp(-decay·t) · sin(2π·f·t)
+  s(t) = V · exp(-5t) · sin(2π·f(t)·t)
   
-  Used for percussion sounds.
+  Fixed parameters:
+  • startFrequency = 60 Hz
+  • endFrequency = 40 Hz
+  • decayRate = 5.0
+  
+  getInstance() returns unique instance.
+end note
+
+note bottom of NoteFactory
+  **Singleton Pattern**
+  ═════════════════════
+  Single instance via
+  getInstance().
+  
+  Private constructor.
 end note
 
 
