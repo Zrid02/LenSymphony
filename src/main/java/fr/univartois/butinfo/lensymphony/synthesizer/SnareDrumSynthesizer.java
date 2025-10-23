@@ -18,6 +18,10 @@ public class SnareDrumSynthesizer implements NoteSynthesizer{
 
     }
 
+    /**
+     * this method give the instance of the class
+     * @return INSTANCE the instance of the class
+     */
     public static SnareDrumSynthesizer getInstance(){
         return INSTANCE;
     }
