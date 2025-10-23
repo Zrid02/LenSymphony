@@ -6,20 +6,25 @@ import java.util.Random;
 
 public class SnareDrumSynthesizer implements NoteSynthesizer{
 
-    private double attack=0.0;
+    private double attack=0.01;
     Random random = new Random();
+    private static final SnareDrumSynthesizer INSTANCE = new SnareDrumSynthesizer();
 
     /**
      * constructor of this class
-     * @param attack the attack of the sound
+     *
      */
-    public SnareDrumSynthesizer(double attack){
-        if(attack<=0){
-            throw new IllegalArgumentException();
-        }
-        this.attack=attack;
+    private SnareDrumSynthesizer(){
+
     }
 
+    /**
+     * this method give the instance of the class
+     * @return INSTANCE the instance of the class
+     */
+    public static SnareDrumSynthesizer getInstance(){
+        return INSTANCE;
+    }
     /**
      * this method calculate the envelope of the sound at an instant time
      * @param t a given instant time

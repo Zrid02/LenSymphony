@@ -17,7 +17,7 @@ public enum Instruments {
 	/**
 	 * A snare drum using 4 harmonics.
 	 */
-	SNARE_DRUM(new SnareDrumSynthesizer( 0.01)),
+	SNARE_DRUM(SnareDrumSynthesizer.getInstance()),
 
 	/**
 	 * A cymbal using 5 harmonics.
