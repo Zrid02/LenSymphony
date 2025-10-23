@@ -54,14 +54,19 @@ public class TriangleSynthesizer implements NoteSynthesizer{
 		int nbSample = (int) (duration*SAMPLE_RATE);
 
 		double[] sounds = new double[nbSample];
+		if (frequency == 0){
+			return sounds;
+		}
 
 		for(int i=0;i<nbSample;i++){
 			double t = (double) i /SAMPLE_RATE;
 			double value = 0.0;
-			for (int j = 1; j < n; j++) {
-				value += Math.exp(-5*(0.5+0.3-j))*Math.sin(4*Math.PI*(2000+800*j)*t);
+			for (int j = 1; j <= n; j++) {
+				double exp = Math.exp(-5*(0.5+0.3*j));
+				double f = 2000+800*j;
+				value += exp*Math.sin(4*Math.PI*f*t);
 			}
-			sounds[i] = volume * Math.sin(2*Math.PI*frequency*t);
+			sounds[i] = volume*value;
 		}
 
 		return sounds;	}
