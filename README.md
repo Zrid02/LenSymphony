@@ -405,6 +405,16 @@ class ADSRSynthesizer extends NoteSynthesizerDecorator{
    
 }
 
+class CymbaleSynthesizer implements NoteSynthesizer {
+    - {static} INSTANCE: CymbalSynthesizer
+    
+    - CymbalSynthesizer()
+    + {static} getInstance(): CymbalSynthesizer
+    + cymbaleEnvelope(t :double,volume :double): double)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+
 
 HarmonicSynthesizerComplex --|> NoteSynthesizerDecorator
 
@@ -639,7 +649,7 @@ end note
 | Representation of a musical piece                      | Composite             |                 |
 | Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
 | Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
-| Addition of harmonics to the sound of a note           | Decorator             | Rabhi Nessim    |
+| Addition of harmonics to the sound of a note           | Decorator             | Rab i Nessim    |
 | Application of an ADSR envelope to the sound of a note | Decorator             |                 |
 | Application of a vibrato to the sound of a note        | Decorator             |                 |
 | Addition of random noise to the sound of a note        | Decorator             |                 |
