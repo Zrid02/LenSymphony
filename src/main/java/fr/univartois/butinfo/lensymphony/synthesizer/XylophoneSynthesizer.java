@@ -17,26 +17,19 @@ public class XylophoneSynthesizer implements NoteSynthesizer {
 	/**
 	 * Number of harmonics to synthesize. Must be >= 1.
 	 */
-	private final int harmonics;
+	private final int harmonics = 8;
+	private static final XylophoneSynthesizer INSTANCE = new XylophoneSynthesizer();
+
 
 	/**
 	 * Frequency to use when a note's frequency is invalid (<= 0).
 	 */
-	private final double baseFrequency;
+	private final double baseFrequency = 3;
 
-	/**
-	 * Create a new XylophoneSynthesizer.
-	 *
-	 * @param harmonics number of harmonics to include in the generated sound; must be >= 1
-	 * @param baseFrequency fallback frequency (Hz) used when a note's frequency is non-positive
-	 * @throws IllegalArgumentException if {@code harmonics} is less than 1
-	 */
-	public XylophoneSynthesizer(int harmonics, double baseFrequency) {
-		if (harmonics < 1) {
-			throw new IllegalArgumentException("harmonics must be >= 1");
-		}
-		this.harmonics = harmonics;
-		this.baseFrequency = baseFrequency;
+	private XylophoneSynthesizer() {}
+
+	public static XylophoneSynthesizer getInstance() {
+		return INSTANCE;
 	}
 
 	/**

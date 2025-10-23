@@ -27,7 +27,7 @@ public enum Instruments {
 	/**
 	 * A triangle using 6 harmonics.
 	 */
-	TRIANGLE(new TriangleSynthesizer(10)),
+	TRIANGLE(TriangleSynthesizer.getInstance()),
 
 	/**
 	 * A timpani using 7 harmonics.
@@ -37,7 +37,7 @@ public enum Instruments {
 	/**
 	 * A xylophone using 8 harmonics.
 	 */
-	XYLOPHONE(new XylophoneSynthesizer(8,5)), //BaseFrequency on s'en fout un peu
+	XYLOPHONE(XylophoneSynthesizer.getInstance()), //BaseFrequency on s'en fout un peu
 
 	/*
 	 A violin using 10 harmonics

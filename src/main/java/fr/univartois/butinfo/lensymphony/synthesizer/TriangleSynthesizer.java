@@ -16,15 +16,14 @@ public class TriangleSynthesizer implements NoteSynthesizer{
 	 * Higher values produce a closer approximation of a triangle wave but
 	 * require more CPU.
 	 */
-	private int n;
+	private int n = 8;
+	private static final TriangleSynthesizer INSTANCE = new TriangleSynthesizer();
 
-	/**
-	 * Construct a TriangleSynthesizer.
-	 *
-	 * @param n number of harmonics to use (recommended >= 1)
-	 */
-	public TriangleSynthesizer( int n) {
-		this.n=n;
+
+	private TriangleSynthesizer() {}
+
+	public static TriangleSynthesizer getInstance(){
+		return INSTANCE;
 	}
 
 	/**

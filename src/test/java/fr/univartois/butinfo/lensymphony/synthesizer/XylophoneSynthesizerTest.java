@@ -18,7 +18,7 @@ public class XylophoneSynthesizerTest {
 
         int tempo = 100;
         double volume = 0.8;
-        XylophoneSynthesizer xs = new XylophoneSynthesizer(8, 440.0);
+        XylophoneSynthesizer xs = XylophoneSynthesizer.getInstance();
 
         double[] samples = xs.synthesize(note, tempo, volume);
 
@@ -40,7 +40,7 @@ public class XylophoneSynthesizerTest {
             public int getDuration(int tempo) { return 200; } // ms
         };
 
-        XylophoneSynthesizer xs = new XylophoneSynthesizer(4, 440.0);
+        XylophoneSynthesizer xs = XylophoneSynthesizer.getInstance();
         double[] samples = xs.synthesize(silentFreqNote, 120, 0.5);
 
         int expected = (int) (silentFreqNote.getDuration(120) / 1000.0 * 44100);
