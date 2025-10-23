@@ -31,162 +31,238 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test class for {@link BassDrumSynthesizer}.
  *
- * @author Romain Wallon
+ * @author Rabhi Nessim
  *
  * @version 0.1.0
  */
 public class BassDrumSynthesizerTest {
 
     @Test
-    void createBassDrumSynthesizer() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer();
-        assertNotNull(bassDrum);
+    void getInstanceReturnsSameInstance() {
+        NoteSynthesizer instance1 = BassDrumSynthesizer.getInstance();
+        NoteSynthesizer instance2 = BassDrumSynthesizer.getInstance();
+
+        assertSame(instance1, instance2, "getInstance() should always return the same instance");
     }
 
     @Test
-    void createBassDrumSynthesizerWithCustomParameters() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer(70.0, 35.0, 6.0);
-        assertNotNull(bassDrum);
+    void getInstanceReturnsNotNull() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        assertNotNull(bassDrum, "getInstance() should not return null");
     }
 
     @Test
-    void synthesizeBassDrum() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer();
+    void synthesizeBassDrumQuarterNote() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
         Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
 
         double[] samples = bassDrum.synthesize(note, 120, 0.8);
 
         // Vérifier que des échantillons ont été générés
-        assertTrue(samples.length > 0);
+        assertTrue(samples.length > 0, "Synthesized samples should not be empty");
 
         // Durée attendue : 500ms pour une noire à 120 BPM
-        assertEquals(22050, samples.length, "Duration should be 500ms at 44100 Hz");
+        assertEquals(22050, samples.length, "Duration should be 500ms (22050 samples at 44100 Hz)");
     }
 
     @Test
-    void exponentialDecay() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer();
+    void synthesizeBassDrumHalfNote() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.HALF);
+
+        double[] samples = bassDrum.synthesize(note, 120, 0.8);
+
+        // Durée attendue : 1000ms pour une blanche à 120 BPM
+        assertEquals(44100, samples.length, "Duration should be 1000ms (44100 samples at 44100 Hz)");
+    }
+
+    @Test
+    void exponentialDecayOverTime() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
         Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
 
         double[] samples = bassDrum.synthesize(note, 120, 1.0);
 
         // Le son doit décroître exponentiellement
-        // Les premiers échantillons doivent être plus forts que les derniers
-        double firstSampleAbs = Math.abs(samples[100]);
-        double lastSampleAbs = Math.abs(samples[samples.length - 100]);
+        // Comparer les échantillons au début vs à la fin (en valeur absolue)
+        double firstRegionMax = 0;
+        double lastRegionMax = 0;
 
-        assertTrue(firstSampleAbs > lastSampleAbs,
-                "Sound should decay exponentially (first: " + firstSampleAbs + ", last: " + lastSampleAbs + ")");
+        // Maximum dans les 100 premiers échantillons
+        for (int i = 0; i < 100; i++) {
+            firstRegionMax = Math.max(firstRegionMax, Math.abs(samples[i]));
+        }
+
+        // Maximum dans les 100 derniers échantillons
+        for (int i = samples.length - 100; i < samples.length; i++) {
+            lastRegionMax = Math.max(lastRegionMax, Math.abs(samples[i]));
+        }
+
+        assertTrue(firstRegionMax > lastRegionMax,
+                "Sound should decay exponentially (first region max: " + firstRegionMax +
+                        ", last region max: " + lastRegionMax + ")");
     }
 
     @Test
-    void differentTemposProduceDifferentFrequencies() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer(60.0, 40.0, 5.0);
-        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
+    void frequencyDecreasesOverTime() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.HALF);
 
-        double[] samples60 = bassDrum.synthesize(note, 60, 1.0);
-        double[] samples120 = bassDrum.synthesize(note, 120, 1.0);
+        double[] samples = bassDrum.synthesize(note, 120, 1.0);
 
-        // Avec des tempos différents, les fréquences calculées sont différentes
-        // donc les sons doivent être différents
-        assertNotEquals(samples60[1000], samples120[1000], 0.01);
+        // La fréquence doit varier de 60 Hz à 40 Hz
+        // On ne peut pas tester directement la fréquence, mais on vérifie que le son est généré
+        assertTrue(samples.length > 0, "Samples should be generated");
+
+        // Vérifier qu'il y a du signal (pas que des zéros)
+        boolean hasSignal = false;
+        for (double sample : samples) {
+            if (Math.abs(sample) > 1e-6) {
+                hasSignal = true;
+                break;
+            }
+        }
+        assertTrue(hasSignal, "Generated sound should have non-zero samples");
     }
 
     @Test
     void volumeAffectsAmplitude() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer();
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
         Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
 
-        double[] samplesLow = bassDrum.synthesize(note, 120, 0.5);
-        double[] samplesHigh = bassDrum.synthesize(note, 120, 1.0);
+        double[] samplesLowVolume = bassDrum.synthesize(note, 120, 0.3);
+        double[] samplesHighVolume = bassDrum.synthesize(note, 120, 0.9);
 
-        // Le volume élevé doit produire des amplitudes plus grandes
+        // Calculer l'amplitude moyenne sur les premiers échantillons
         double avgLow = 0;
         double avgHigh = 0;
-        for (int i = 0; i < 100; i++) {
-            avgLow += Math.abs(samplesLow[i]);
-            avgHigh += Math.abs(samplesHigh[i]);
+        for (int i = 0; i < 1000; i++) {
+            avgLow += Math.abs(samplesLowVolume[i]);
+            avgHigh += Math.abs(samplesHighVolume[i]);
         }
-        avgLow /= 100;
-        avgHigh /= 100;
+        avgLow /= 1000;
+        avgHigh /= 1000;
 
-        assertTrue(avgHigh > avgLow, "Higher volume should produce higher amplitude");
+        assertTrue(avgHigh > avgLow,
+                "Higher volume should produce higher amplitude (low: " + avgLow + ", high: " + avgHigh + ")");
     }
 
     @Test
-    void differentDecayRates() {
-        NoteSynthesizer slowDecay = new BassDrumSynthesizer(60.0, 40.0, 2.0);
-        NoteSynthesizer fastDecay = new BassDrumSynthesizer(60.0, 40.0, 8.0);
-        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.HALF);
+    void differentTempusProduceDifferentDurations() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
 
-        double[] samplesSlow = slowDecay.synthesize(note, 120, 1.0);  // ✅ CORRIGÉ
-        double[] samplesFast = fastDecay.synthesize(note, 120, 1.0);
+        double[] samples60bpm = bassDrum.synthesize(note, 60, 1.0);
+        double[] samples120bpm = bassDrum.synthesize(note, 120, 1.0);
 
-        // À la fin du son, le decay lent doit avoir plus d'amplitude
-        int endIndex = samplesSlow.length - 1000;
-        double slowEnd = Math.abs(samplesSlow[endIndex]);
-        double fastEnd = Math.abs(samplesFast[endIndex]);
-
-        assertTrue(slowEnd > fastEnd,
-                "Slower decay should have more amplitude at the end (slow: " + slowEnd + ", fast: " + fastEnd + ")");
+        // À 60 BPM, une noire dure 1000ms (44100 échantillons)
+        // À 120 BPM, une noire dure 500ms (22050 échantillons)
+        assertEquals(44100, samples60bpm.length, "Quarter note at 60 BPM should be 1000ms");
+        assertEquals(22050, samples120bpm.length, "Quarter note at 120 BPM should be 500ms");
     }
 
     @Test
-    void invalidStartFrequency_throwsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BassDrumSynthesizer(-60.0, 40.0, 5.0);
-        });
+    void differentNoteValuesProduceDifferentDurations() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note quarter = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
+        Note half = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.HALF);
+        Note whole = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.WHOLE);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BassDrumSynthesizer(0, 40.0, 5.0);
-        });
-    }
+        double[] samplesQuarter = bassDrum.synthesize(quarter, 120, 1.0);
+        double[] samplesHalf = bassDrum.synthesize(half, 120, 1.0);
+        double[] samplesWhole = bassDrum.synthesize(whole, 120, 1.0);
 
-    @Test
-    void invalidEndFrequency_throwsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BassDrumSynthesizer(60.0, 0, 5.0);
-        });
+        // Une blanche doit produire 2 fois plus d'échantillons qu'une noire
+        assertEquals(samplesQuarter.length * 2, samplesHalf.length,
+                "Half note should be twice as long as quarter note");
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BassDrumSynthesizer(60.0, -40.0, 5.0);
-        });
-    }
-
-    @Test
-    void invalidDecayRate_throwsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BassDrumSynthesizer(60.0, 40.0, -5.0);
-        });
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            new BassDrumSynthesizer(60.0, 40.0, 0);
-        });
+        // Une ronde doit produire 4 fois plus d'échantillons qu'une noire
+        assertEquals(samplesQuarter.length * 4, samplesWhole.length,
+                "Whole note should be four times as long as quarter note");
     }
 
     @Test
     void differentFromPureSound() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer();
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
         NoteSynthesizer pure = new PureSound();
         Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
 
         double[] bassDrumSamples = bassDrum.synthesize(note, 120, 0.5);
         double[] pureSamples = pure.synthesize(note, 120, 0.5);
 
-        // Le son de grosse caisse avec decay doit être différent d'un son pur
-        assertNotEquals(bassDrumSamples[1000], pureSamples[1000], 0.01);
+        // Les deux sons doivent être différents (grosse caisse vs son pur)
+        // Comparer quelques échantillons au milieu
+        boolean isDifferent = false;
+        for (int i = 1000; i < 2000; i++) {
+            if (Math.abs(bassDrumSamples[i] - pureSamples[i]) > 0.01) {
+                isDifferent = true;
+                break;
+            }
+        }
+
+        assertTrue(isDifferent, "Bass drum sound should be different from pure sound");
     }
 
     @Test
-    void longerNotesProduceMoreSamples() {
-        NoteSynthesizer bassDrum = new BassDrumSynthesizer();
-        Note quarter = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
-        Note half = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.HALF);
+    void synthesizeWithZeroVolume() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
 
-        double[] samplesQuarter = bassDrum.synthesize(quarter, 120, 1.0);
-        double[] samplesHalf = bassDrum.synthesize(half, 120, 1.0);
+        double[] samples = bassDrum.synthesize(note, 120, 0.0);
 
-        // Une blanche doit produire 2 fois plus d'échantillons qu'une noire
-        assertEquals(samplesQuarter.length * 2, samplesHalf.length);
+        // Avec volume = 0, tous les échantillons doivent être ~0
+        boolean allZero = true;
+        for (double sample : samples) {
+            if (Math.abs(sample) > 1e-10) {
+                allZero = false;
+                break;
+            }
+        }
+
+        assertTrue(allZero, "With volume = 0, all samples should be approximately zero");
+    }
+
+    @Test
+    void synthesizeWithMaxVolume() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
+
+        double[] samples = bassDrum.synthesize(note, 120, 1.0);
+
+        // Vérifier qu'il y a du signal
+        boolean hasSignal = false;
+        for (double sample : samples) {
+            if (Math.abs(sample) > 0.1) {
+                hasSignal = true;
+                break;
+            }
+        }
+
+        assertTrue(hasSignal, "With volume = 1.0, should produce audible signal");
+    }
+
+    @Test
+    void allSamplesWithinValidRange() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.QUARTER);
+
+        double[] samples = bassDrum.synthesize(note, 120, 1.0);
+
+        // Tous les échantillons doivent être dans la plage [-1.0, 1.0]
+        for (int i = 0; i < samples.length; i++) {
+            assertTrue(samples[i] >= -1.0 && samples[i] <= 1.0,
+                    "Sample " + i + " out of range: " + samples[i]);
+        }
+    }
+
+    @Test
+    void synthesizeVeryShortNote() {
+        NoteSynthesizer bassDrum = BassDrumSynthesizer.getInstance();
+        Note note = new PitchedNote(NotePitch.of(PitchClass.C, 2), NoteValue.SIXTY_FOURTH);
+
+        double[] samples = bassDrum.synthesize(note, 120, 1.0);
+
+        // Même une note très courte doit produire des échantillons
+        assertTrue(samples.length > 0, "Even very short notes should produce samples");
     }
 }

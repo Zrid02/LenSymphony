@@ -47,7 +47,7 @@ import fr.univartois.butinfo.lensymphony.notes.Note;
  * This implementation follows the Strategy design pattern by implementing
  * the {@link NoteSynthesizer} interface.
  *
- * @author Romain Wallon
+ * @author Rabhi Nessim
  *
  * @version 0.1.0
  */
@@ -56,18 +56,20 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
     /**
      * The starting frequency of the bass drum sound in Hz (default: 60 Hz).
      */
-    private final double startFrequency;
+    private final double startFrequency = 60.0;
 
     /**
      * The ending frequency of the bass drum sound in Hz (default: 40 Hz).
      */
-    private final double endFrequency;
+    private final double endFrequency = 40.0;
 
     /**
      * The decay rate for the exponential envelope (default: 5.0).
      * A higher value means faster decay (shorter sound).
      */
-    private final double decayRate;
+    private final double decayRate = 5.0;
+
+    private static final BassDrumSynthesizer INSTANCE = new BassDrumSynthesizer();
 
     /**
      * Creates a new instance of BassDrumSynthesizer with default parameters.
@@ -75,7 +77,7 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      * @return A new BassDrumSynthesizer instance.
      */
     public static BassDrumSynthesizer getInstance(){
-        return new BassDrumSynthesizer();
+        return INSTANCE;
     }
 
     /**
@@ -86,8 +88,8 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      *   <li>Decay rate: 5.0</li>
      * </ul>
      */
-    public BassDrumSynthesizer() {
-        this(60.0, 40.0, 5.0);
+    private BassDrumSynthesizer() {
+
     }
 
     /**
@@ -100,21 +102,6 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      *
      * @throws IllegalArgumentException If any parameter is not positive.
      */
-    public BassDrumSynthesizer(double startFrequency, double endFrequency, double decayRate) {
-        if (startFrequency <= 0) {
-            throw new IllegalArgumentException("startFrequency must be > 0");
-        }
-        if (endFrequency <= 0) {
-            throw new IllegalArgumentException("endFrequency must be > 0");
-        }
-        if (decayRate <= 0) {
-            throw new IllegalArgumentException("decayRate must be > 0");
-        }
-
-        this.startFrequency = startFrequency;
-        this.endFrequency = endFrequency;
-        this.decayRate = decayRate;
-    }
 
 
     /**
