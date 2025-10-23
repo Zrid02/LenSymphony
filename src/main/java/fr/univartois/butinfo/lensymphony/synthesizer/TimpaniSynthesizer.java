@@ -31,17 +31,28 @@ public class TimpaniSynthesizer implements NoteSynthesizer{
     @Override
     public double[] synthesize(Note note, int tempo, double volume) {
         double frequency = note.getFrequency();
-        double duration = note.getDuration(tempo)/1000;
+        double duration = note.getDuration(tempo) / 1000;
 
-        int nbSample = (int) (duration*SAMPLE_RATE);
+        int nbSample = (int) (duration * SAMPLE_RATE);
 
         double[] sounds = new double[nbSample];
 
-        for(int i=0;i<nbSample;i++){
-            double t = (double) i/SAMPLE_RATE;
-            sounds[i] = frequency+((t*(0.6*frequency-frequency))/duration);
-        }
+        double t = 0;
+        for (int i = 0; i < nbSample; i++) {
+            t = (double) i / SAMPLE_RATE;
+            double realFrequency = frequency + ((t * (0.6 * frequency - frequency)) / duration);
 
+
+            if (realFrequency <= 0) {
+                return sounds;
+            }
+
+            double decayRate = 5.0;
+            double envelope = Math.exp(-decayRate * t);
+
+            // Calculate signal: s(t) = V · exp(-decayRate·t) · sin(2π · f(t) · t)
+            sounds[i] = volume * envelope * Math.sin(2 * Math.PI * frequency * t);
+        }
         return sounds;
     }
 }
