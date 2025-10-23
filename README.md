@@ -288,6 +288,22 @@ class VibratoSynthesizer {
   + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class SnareDrumSynthesizer implements NoteSynthesizer{
+    - attack: double
+    - {static} INSTANCE: SnareDrumSynthesizer
+    - SnareDrumSynthesizer()
+    + {static} getInstance(): SnareDrumSynthesizer
+    + envelope(t: double, volume: double): double
+    + synthesize(note: Note, tempo: int, volume: double): double[] 
+}
+
+class TimpaniSynthesizer implments NoteSynthesizer{
+    - {static} INSTANCE: TimpaniSynthesizer
+    - TimpaniSynthesizer()
+    + {static} getInstance(): TimpaniSynthesizer
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
 class TriangleSynthesizer {
   - int n = 8
   - static final TriangleSynthesizer INSTANCE
@@ -659,27 +675,27 @@ end note
 
 | Features                                               | Design Pattern(s) (?) | Author(s)       |
 |--------------------------------------------------------|-----------------------|-----------------|
-| Representation of a note's pitch (name + octave)       | None                  |                 |
+| Representation of a note's pitch (name + octave)       | None                  | Rabhi Nessim    |
 | Representation of a note/silence value                 | None                  | Dutkiewicz Tom  |
 | Representation of a musical note                       | Decorator             | Rabhi Nessim    |
 | Representation of a silence                            | Composite             | Dassonville Ugo |
 | Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
 | Representation of a tie between notes                  | Composite             | Dutkiewicz Tom  |
 | Representation of a staff                              | Composite             | Ugo Dassonville |
-| Traversal of notes/silences in a staff                 | Iterator              |                 |
-| Representation of a musical piece                      | Composite             |                 |
-| Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
+| Traversal of notes/silences in a staff                 | Iterator              | Antoine/Ugo     |
+| Representation of a musical piece                      | Composite             | Mouille Antoine |
+| Creation of musical elements (notes, silences)         | Abstract Fabric       | Dutkiewicz Tom  |
 | Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
 | Addition of harmonics to the sound of a note           | Decorator             | Rabhi Nessim    |
 | Application of an ADSR envelope to the sound of a note | Decorator             | Mouille Antoine |
 | Application of a vibrato to the sound of a note        | Decorator             | Dassonville Ugo |
 | Addition of random noise to the sound of a note        | Decorator             | Rabhi Nessim    |
-| Synthesis of the bass drum sound                       | Strategy              | Antoine Mouille |
-| Synthesis of the snare drum sound                      | Strategy              | Antoine Mouille |
-| Synthesis of the cymbal sound                          | Strategy              | Antoine Mouille |
-| Synthesis of the triangle sound                        | Strategy              | Antoine Mouille |
-| Synthesis of the timpani sound                         | Strategy              | Antoine Mouille |
-| Synthesis of the xylophone sound                       | Strategy              | Antoine Mouille |
+| Synthesis of the bass drum sound                       | Strategy              | Rabhi Nessim    |
+| Synthesis of the snare drum sound                      | Strategy              | Mouille Antoine |
+| Synthesis of the cymbal sound                          | Strategy              | Dutkiewicz Tom  |
+| Synthesis of the triangle sound                        | Strategy              | Dassonville Ugo |
+| Synthesis of the timpani sound                         | Strategy              | Antoine/Tom     |
+| Synthesis of the xylophone sound                       | Strategy              | Dassonville Ugo |
 | Definition of virtual instruments                      | Abstract Fabric       | Antoine/Ugo     |
 | Synthesis of the ensemble piece sound                  | Composite             |                 |
 | Command line management                                | Singleton             |                 |
