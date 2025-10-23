@@ -1,35 +1,33 @@
 package fr.univartois.butinfo.lensymphony.notes;
 
-import fr.univartois.butinfo.lensymphony.synthesizer.HarmonicSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.PureSound;
+import fr.univartois.butinfo.lensymphony.synthesizer.*;
 
 /**
  * An enumeration of musical instruments that can be used to play notes.
  * Each instrument has its own synthesizer that defines how its notes should sound.
  *
- * @author antoine mouille & Dassonville Ugo
+ * @author Mouille Antoine, Rabhi Nessim & Dassonville Ugo
  */
 public enum Instruments {
 	/**
 	 * A bass drum using pure sound synthesis.
 	 */
-	BASS_DRUM(new PureSound()),
+	BASS_DRUM(BassDrumSynthesizer.getInstance()),
 
 	/**
 	 * A snare drum using 4 harmonics.
 	 */
-	SNARE_DRUM(new HarmonicSynthesizer(new PureSound(), 4)),
+	SNARE_DRUM(SnareDrumSynthesizer.getInstance()),
 
 	/**
 	 * A cymbal using 5 harmonics.
 	 */
-	CYMBAL(new HarmonicSynthesizer(new PureSound(), 5)),
+	CYMBAL(CymbaleSynthesizer.getInstance()),
 
 	/**
 	 * A triangle using 6 harmonics.
 	 */
-	TRIANGLE(new HarmonicSynthesizer(new PureSound(), 6)),
+	TRIANGLE(TriangleSynthesizer.getInstance()),
 
 	/**
 	 * A timpani using 7 harmonics.
@@ -39,7 +37,70 @@ public enum Instruments {
 	/**
 	 * A xylophone using 8 harmonics.
 	 */
-	XYLOPHONE(new HarmonicSynthesizer(new PureSound(), 8));
+	XYLOPHONE(XylophoneSynthesizer.getInstance()), //BaseFrequency on s'en fout un peu
+
+	/*
+	 A violin using 10 harmonics
+	 */
+	VIOLIN(new VibratoSynthesizer(
+			new ADSRSynthesizer(new HarmonicSynthesizer(new PureSound(), 10),0.1, 0.2, 0.7, 0.3
+			),
+			0.01,5
+	)),
+	/*
+	A guitar using 8 harmonics
+	 */
+
+	GUITAR(new VibratoSynthesizer(
+			new ADSRSynthesizer(
+					new HarmonicSynthesizer(new PureSound(), 8),
+					0.008, 0.05, 0.2, 2.5
+			),
+			0.02,3)
+	),
+
+	/*
+	A piano using 10 harmonics
+	 */
+
+	PIANO(new ADSRSynthesizer(
+			new HarmonicSynthesizerComplex(
+					new PureSound(),
+					10,
+					i -> i,
+					(i, t) -> Math.exp(-2 * i * t) / i
+			),
+			0.01, 0.3, 0.2, 0.5
+	)),
+
+
+	/*
+	A flute using harmonics odd
+	 */
+
+	FLUTE(new VibratoSynthesizer(
+			new HarmonicSynthesizerComplex(
+					new ADSRSynthesizer(
+							new WhiteNoiseSynthesizer(new PureSound(), 0.003),
+							0.09, 0.0, 1.0, 0.3
+					),
+					5,
+					i -> 2 * i - 1,
+					(i, t) -> 1.0 / Math.pow(3, i - 1)
+			),
+			0.01, 5.0
+	)),
+
+	HARP(new HarmonicSynthesizerComplex(
+			new ADSRSynthesizer(new PureSound(), 0.001, 0.1, 0.3, 1.5),
+			10,
+			i -> i,
+			(i, t) -> Math.pow(0.7, i - 1) * Math.exp(-t * (i - 1) * 0.5)
+	));
+
+
+
+
 
 	/**
 	 * The synthesizer used to generate the instrument's sound.

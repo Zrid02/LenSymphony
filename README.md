@@ -26,8 +26,8 @@ enum NoteValue {
     + {static} SIXTY_FOURTH
     + {static} ONE_HUNDRED_TWENTY_EIGHTH
     + {static} TWO_HUNDRED_FIFTY_SIXTH
-    - fractionOfWhole
-    - type
+    - fractionOfWhole: double
+    - type: String
 
     ~ NoteValue(fractionOfWhole: double, type: String)
     + duration(tempo: int): int
@@ -75,6 +75,7 @@ interface Note {
 class PitchedNote {
     - pitch: NotePitch
     - value: NoteValue
+    
     + PitchedNote(pitch: NotePitch, value: NoteValue)
     + getFrequency(): double
     + getDuration(tempo: int): int
@@ -85,12 +86,9 @@ class PitchedNote {
     + toString(): String
 }
 
-PitchedNote ..|> Note
-PitchedNote --> NotePitch : uses
-PitchedNote --> NoteValue : uses
-
 abstract class NoteDecorator {
     # note: Note
+    
     # NoteDecorator(note: Note)
     + getFrequency(): double
     + getDuration(tempo: int): int
@@ -101,36 +99,55 @@ class DottedNote {
     + getDuration(tempo: int): int
 }
 
-NoteDecorator ..|> Note
-NoteDecorator o--> Note : decorates
-DottedNote --|> NoteDecorator
+class FermataNote {
+    + FermataNote(note: Note)
+    + getDuration(tempo: int): int
+}
 
 class Rest {
     - noteValue: NoteValue
     - dots: int
-    - tiedNotes: List\<Note\>
+    - tiedNotes: List<Note>
+    
     + Rest(noteValue: NoteValue)
     + Rest(noteValue: NoteValue, dots: int)
     + addDot(): void
     + addDots(n: int): void
     + tieWith(other: Note): Rest
-    + getTiedNotes(): List\<Note\>
+    + getTiedNotes(): List<Note>
     + getFrequency(): double
     + getDuration(tempo: int): int
 }
 
+class TiedNotes {
+    - notes: List<Note>
+    
+    + TiedNotes(notes: List<Note>)
+    + getFrequency(): double
+    + getDuration(tempo: int): int
+}
+
+' Relations Notes
+PitchedNote ..|> Note
+PitchedNote --> NotePitch : uses
+PitchedNote --> NoteValue : uses
+
+NoteDecorator ..|> Note
+NoteDecorator o--> Note : decorates
+DottedNote --|> NoteDecorator
+FermataNote --|> NoteDecorator
+
 Rest ..|> Note
 Rest --> NoteValue : uses
 
-package "tests" {
-  class PitchedNoteTest <<test>> {
-    + a4Quarter_at120bpm()
-    + c4Half_at90bpm()
-    + e5Eighth_at120bpm()
-  }
-}
+TiedNotes ..|> Note
+TiedNotes o-- "*" Note : ties
 
-PitchedNoteTest ..> PitchedNote : tests
+NotePitch o-- PitchClass
+
+' ------- '
+' Factory '
+' ------- '
 
 interface AbstractNoteFactory {
     + {abstract} createRest(value: NoteValue): Note
@@ -141,18 +158,43 @@ interface AbstractNoteFactory {
     + {abstract} createTiedNotes(notes: List<Note>): Note
 }
 
-NotePitch o-- PitchClass
-AbstractNoteFactory --> Note : << creates >>
-
-' Score (stave) representation
-class Score {
-  - notes: List\<Note\>
-  - instrument: Instruments
-  + Score(instrument: Instruments, notes: List\<Note\>)
-  + getInstrument(): Instruments
-  + addNote(note: Note): void
-  + iterator(): Iterator\<Note\>
+class NoteFactory {
+    - {static} INSTANCE: NoteFactory
+    
+    - NoteFactory()
+    + {static} getInstance(): NoteFactory
+    + createRest(value: NoteValue): Note
+    + createNote(pitch: NotePitch, value: NoteValue): Note
+    + createDottedNote(note: Note): Note
+    + createFermataOn(note: Note): Note
+    + createTiedNotes(notes: Note[]): Note
+    + createTiedNotes(notes: List<Note>): Note
 }
+
+NoteFactory ..|> AbstractNoteFactory
+AbstractNoteFactory ..> Note : << creates >>
+
+' ------- '
+' Parsing '
+' ------- '
+
+class MusicXMLSaxParser {
+    - noteFactory: AbstractNoteFactory
+    - tempo: int
+    - parts: Map<String, List<Note>>
+    
+    + MusicXMLSaxParser(noteFactory: AbstractNoteFactory)
+    + getTempo(): int
+    + getParts(): Map<String, List<Note>>
+    + getNotes(partId: String): List<Note>
+}
+
+MusicXMLSaxParser --> AbstractNoteFactory : << uses >>
+
+' -------------- '
+' Score and Instruments '
+' -------------- '
+
 enum Instruments {
   + BASS_DRUM
   + SNARE_DRUM
@@ -160,45 +202,34 @@ enum Instruments {
   + TRIANGLE
   + TIMPANI
   + XYLOPHONE
+  + VIOLIN
+  + GUITAR
+  + PIANO
+  + FLUTE
+  + TRUMPET
+  + HARP
+  + BANJO
+  + CLARINET
+  + OCARINA
   + synthesizer: NoteSynthesizer
   + getSynthesizer(): NoteSynthesizer
   + Instruments(synthesize: NoteSynthesizer)
 }
 
-class MusicPiece{
-    - scores: ArrayList<Score>
-    - tempo: int
-    + addScore(score: Score ): void
-    + iterator(): Iterator<Score>
-    + getScores(): List<Score>
-    + getTempo(): int
+
+class Score {
+    - notes: List<Note>
+    - instrument: Instruments
+    
+    + Score(instrument: Instruments, notes: List<Note>)
+    + getInstrument(): Instruments
+    + addNote(note: Note): void
+    + iterator(): Iterator<Note>
 }
 
 Score o-- "*" Note
 Score --> Instruments : uses
-
-package "tests" {
-  class ScoreTest <<test>> {
-    + constructorSetsInstrument()
-    + iteratorIsEmptyWhenNoNotes()
-    + addNote()
-  }
-}
-
-ScoreTest ..> Score : tests
-
-' ------- '
-' Parsing '
-' ------- '
-
-class MusicXMLSaxParser {
-    + MusicXMLSaxParser(noteFactory: AbstractNoteFactory)
-    + getTempo(): int
-    + getParts(): Map<String,List<Note>>
-    + getNotes(partId: String): List<Note>
-}
-
-MusicXMLSaxParser --> AbstractNoteFactory : << uses >>
+Instruments --> NoteSynthesizer : uses
 
 ' --------------- '
 ' Sound synthesis '
@@ -213,11 +244,26 @@ class PureSound {
     + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class BassDrumSynthesizer {
+    - {static} INSTANCE: BassDrumSynthesizer
+    - startFrequency: double = 60.0
+    - endFrequency: double = 40.0
+    - decayRate: double = 5.0
+    
+    - BassDrumSynthesizer()
+    + {static} getInstance(): BassDrumSynthesizer
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
 abstract class NoteSynthesizerDecorator {
     # synthesizer: NoteSynthesizer
     
     # NoteSynthesizerDecorator(synthesizer: NoteSynthesizer)
     + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+abstract class SynthesizerDecorator {
+    # SynthesizerDecorator(synthesizer: NoteSynthesizer)
 }
 
 class HarmonicSynthesizer {
@@ -227,22 +273,85 @@ class HarmonicSynthesizer {
     + synthesize(note: Note, tempo: int, volume: double): double[]
 }
 
+class WhiteNoiseSynthesizer {
+    - noiseAmplitude: double
+    - random: Random
+    
+    + WhiteNoiseSynthesizer(synthesizer: NoteSynthesizer, noiseAmplitude: double)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+class VibratoSynthesizer {
+  - d: double
+  - s: double
+  + VibratoSynthesizer(synthesizer: NoteSynthesizer, depth: double, speed: double)
+  + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+class SnareDrumSynthesizer implements NoteSynthesizer{
+    - attack: double
+    - {static} INSTANCE: SnareDrumSynthesizer
+    - SnareDrumSynthesizer()
+    + {static} getInstance(): SnareDrumSynthesizer
+    + envelope(t: double, volume: double): double
+    + synthesize(note: Note, tempo: int, volume: double): double[] 
+}
+
+class TimpaniSynthesizer implments NoteSynthesizer{
+    - {static} INSTANCE: TimpaniSynthesizer
+    - TimpaniSynthesizer()
+    + {static} getInstance(): TimpaniSynthesizer
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+class TriangleSynthesizer {
+  - int n = 8
+  - static final TriangleSynthesizer INSTANCE
+  - TriangleSynthesizer()
+  + static TriangleSynthesizer getInstance()
+  + double[] synthesize(Note note, int tempo, double volume)
+}
+
+class XylophoneSynthesizer {
+  - final int harmonics = 8
+  - static final XylophoneSynthesizer INSTANCE
+  - final double baseFrequency = 3.0
+  - XylophoneSynthesizer()
+  + static XylophoneSynthesizer getInstance()
+  + double[] synthesize(Note note, int tempo, double volume)
+}
+
 ' Relations Synthesizers
 PureSound ..|> NoteSynthesizer
+BassDrumSynthesizer ..|> NoteSynthesizer
 
 NoteSynthesizerDecorator ..|> NoteSynthesizer
 NoteSynthesizerDecorator o--> NoteSynthesizer : decorates
 
-HarmonicSynthesizer --|> NoteSynthesizerDecorator
+SynthesizerDecorator --|> NoteSynthesizerDecorator
 
+HarmonicSynthesizer --|> SynthesizerDecorator
+WhiteNoiseSynthesizer --|> SynthesizerDecorator
+VibratoSynthesizer --|> NoteSynthesizerDecorator
+VibratoSynthesizer ..> Note : uses
+TriangleSynthesizer ..|> NoteSynthesizer
+TriangleSynthesizer --> Note : uses
+XylophoneSynthesizer ..|> NoteSynthesizer
+XylophoneSynthesizer --> Note : uses
+' --------------- '
+' Music synthesis '
+' --------------- '
 
-class MusicPiece implements Iterable{
+class MusicPiece {
     - scores: ArrayList<Score>
-    + addScore(score: Score ): void
+    - tempo: int
+    
+    + addScore(score: Score): void
     + iterator(): Iterator<Score>
+    + getScores(): List<Score>
+    + getTempo(): int
 }
 
-MusicPiece --> "liste" Score
 interface MusicSynthesizer {
     + {abstract} synthesize(): void
     + {abstract} getSamples(): double[]
@@ -257,24 +366,36 @@ class SimpleMusicSynthesizer {
     - synthesizer: NoteSynthesizer
     - tempo: int
     - samples: double[]
-
+    
     + SimpleMusicSynthesizer(tempo: int, notes: Iterable<Note>, synthesizer: NoteSynthesizer)
     + synthesize(): void
     + getSamples(): double[]
+    + getAudioData(): byte[]
+    + play(): void
+    + save(filename: String): void
 }
 
 class MultipleScoreSynthesizer {
-  + add(synth: MusicSynthesizer): void
-  + synthesize(): void
-  + getSamples(): double[]
+    - synthesizers: List<MusicSynthesizer>
+    - samples: double[]
+    
+    + add(synth: MusicSynthesizer): void
+    + synthesize(): void
+    + getSamples(): double[]
+    + getAudioData(): byte[]
+    + play(): void
+    + save(filename: String): void
 }
+
+MusicPiece ..|> Iterable
+MusicPiece o-- "*" Score
+
+SimpleMusicSynthesizer ..|> MusicSynthesizer
+SimpleMusicSynthesizer o-- "*" Note : uses
+SimpleMusicSynthesizer o-- "1" NoteSynthesizer : uses
 
 MultipleScoreSynthesizer ..|> MusicSynthesizer
 MultipleScoreSynthesizer o-- "*" MusicSynthesizer : combines
-
-SimpleMusicSynthesizer ..|> MusicSynthesizer
-SimpleMusicSynthesizer o-- "*" Note
-SimpleMusicSynthesizer o-- "1" NoteSynthesizer
 
 ' ------------ '
 ' Main classes '
@@ -283,71 +404,270 @@ SimpleMusicSynthesizer o-- "1" NoteSynthesizer
 class Example {
     - {static} noteFactory: AbstractNoteFactory
     - {static} noteSynthesizer: NoteSynthesizer
+    
     + {static} main(args: String[]): void
 }
 
 class LenSymphony {
     - {static} noteFactory: AbstractNoteFactory
     - {static} noteSynthesizer: NoteSynthesizer
+    
     + {static} main(args: String[]): void
 }
-
-class NoteFactory {
-    - {static} INSTANCE: NoteFactory
-    - NoteFactory()
-    + {static} getInstance(): NoteFactory
-    + createRest(value: NoteValue): Note
-    + createNote(pitch: NotePitch, value: NoteValue): Note
-    + createDottedNote(note: Note): Note
-    + createFermataOn(note: Note): Note
-    + createTiedNotes(notes: Note[]): Note
-    + createTiedNotes(notes: List<Note>): Note
-}
-
-class TiedNotes implements Note {
-    - notes: List<Note>
-    + TiedNotes(notes: List<Note>)
-    + getFrequency(): double
-    + getDuration(tempo: int): int
-}
-
-class FermataNote {
-    + FermataNote(note: Note)
-    + getDuration(tempo: int): int
-}
-
-
-
-FermataNote --|> NoteDecorator
-
-
-NoteFactory ..|> AbstractNoteFactory
 
 Example --> AbstractNoteFactory : << uses >>
 Example --> MusicXMLSaxParser : << uses >>
 Example --> NoteSynthesizer : << uses >>
+
 LenSymphony --> AbstractNoteFactory : << uses >>
 LenSymphony --> MusicXMLSaxParser : << uses >>
 LenSymphony --> NoteSynthesizer : << uses >>
 
+class HarmonicSynthesizerComplex {
+  - numberOfHarmonics: int
+  - h: IntUnaryOperator
+  - a: BiFunction\<Integer, Double, Double\>
+  + HarmonicSynthesizerComplex(synthesizer: NoteSynthesizer, numberOfHarmonics: int, h: IntUnaryOperator, a: BiFunction\<Integer, Double, Double\>)
+  + synthesize(note: Note, tempo: int, volume: double): double[]
+}
 
+class ADSRSynthesizer extends NoteSynthesizerDecorator{
+   - attack: double
+   - decay: double
+   - sustain: double
+   - release: double
+   + ADSRSynthesizer(synthesizer: NoteSynthesizer, attack: double, decay: double, sustain: double, release: double)
+   + adsrEnvelope(note: Note, tempo: int): double[]
+   + synthesize(note: Note, tempo: int, volume: double): double[]
+   
+}
+
+class CymbaleSynthesizer implements NoteSynthesizer {
+    - {static} INSTANCE: CymbalSynthesizer
+    
+    - CymbalSynthesizer()
+    + {static} getInstance(): CymbalSynthesizer
+    + cymbaleEnvelope(t :double,volume :double): double)
+    + synthesize(note: Note, tempo: int, volume: double): double[]
+}
+
+
+
+HarmonicSynthesizerComplex --|> NoteSynthesizerDecorator
+
+
+
+package "tests" <<Rectangle>> {
+  class PitchedNoteTest <<test>> {
+    + a4Quarter_at120bpm()
+    + c4Half_at90bpm()
+    + e5Eighth_at120bpm()
+  }
+  
+  class ScoreTest <<test>> {
+    + constructorSetsInstrument()
+    + iteratorIsEmptyWhenNoNotes()
+    + addNote()
+  }
+  
+  class HarmonicSynthesizerTest <<test>> {
+    + createHarmonicSynthesizer()
+    + synthesizeWithHarmonics()
+    + differentFromPureSound()
+    + nullSynthesizer_throwsException()
+    + invalidHarmonics_throwsException()
+  }
+  
+  class WhiteNoiseSynthesizerTest <<test>> {
+    + createWhiteNoiseSynthesizer()
+    + synthesizeWithNoise()
+    + differentFromPureSound()
+    + nullSynthesizer_throwsException()
+    + negativeAmplitude_throwsException()
+  }
+  
+  class VibratoSynthesizerTest <<test>> {
+    + createVibratoSynthesizer()
+    + synthesizeWithVibrato()
+    + differentFromPureSound()
+    + nullSynthesizer_throwsException()
+    + negativeDepth_throwsException()
+    + combineEffects()
+  }
+  
+  class ADSRTest <<test>> {
+    - adsr : ADSRSynthesizer
+    - mockSynth: NoteSynthesizer
+    - note: Note
+    + setUp(): void
+    + testAttackPhase(): void
+    + testDecayPhase(): void
+    + testSustainPhase(): void
+    + testReleasePhase(): void
+    + testAfterNoteEnd(): void
+    + testSynthesizeModifiesSignal(): void
+  }
+  
+  class BassDrumSynthesizerTest <<test>> {
+    + getInstanceReturnsSameInstance()
+    + synthesizeBassDrumQuarterNote()
+    + exponentialDecayOverTime()
+    + volumeAffectsAmplitude()
+    + differentTempusProduceDifferentDurations()
+    + allSamplesWithinValidRange()
+  }
+}
+
+PitchedNoteTest ..> PitchedNote : tests
+ScoreTest ..> Score : tests
+HarmonicSynthesizerTest ..> HarmonicSynthesizer : tests
+WhiteNoiseSynthesizerTest ..> WhiteNoiseSynthesizer : tests
+VibratoSynthesizerTest ..> VibratoSynthesizer : tests
+BassDrumSynthesizerTest ..> BassDrumSynthesizer : tests
+
+' --------------- '
+' Design patterns '
+' --------------- '
 
 note right of NoteDecorator
-  Decorator pattern base class.
-  Delegates all operations to
-  the wrapped note by default.
+  **Decorator Pattern** (Notes)
+  ═══════════════════════════
+  Base class for note decorators.
+  Delegates to wrapped note.
+  
+  Subclasses: DottedNote, FermataNote
 end note
 
 note right of DottedNote
-  Concrete decorator that
-  increases duration by 50%
-  (multiplies by 1.5).
+  **Concrete Decorator**
+  ══════════════════════
+  Increases duration by 50%
+  Formula: duration × 1.5
+  
+  Frequency: unchanged
+end note
+
+note right of FermataNote
+  **Concrete Decorator**
+  ══════════════════════
+  Extends note duration
+  for expressive pauses.
 end note
 
 note right of PitchedNote
-  Concrete note implementation
-  combining pitch and rhythmic value.
+  **Concrete Component**
+  ══════════════════════
+  Base note implementation.
+  
+  Combines:
+  • NotePitch → frequency
+  • NoteValue → duration
 end note
+
+note right of NoteSynthesizerDecorator
+  **Decorator Pattern** (Base)
+  ═════════════════════════════
+  Abstract base for all
+  synthesizer decorators.
+  
+  Delegates to wrapped
+  synthesizer by default.
+end note
+
+note right of SynthesizerDecorator
+  **Intermediate Decorator**
+  ══════════════════════════
+  Extends NoteSynthesizerDecorator.
+  
+  Base class for concrete effect
+  decorators (Harmonic, Noise, Vibrato).
+end note
+
+note bottom of HarmonicSynthesizer
+  **Harmonic Effect**
+  ═══════════════════
+  Adds harmonics (2 to n):
+  s(t) += (V/n) × Σ sin(2π·i·f·t) / √i
+  
+  Uses super.synthesize()
+  for fundamental frequency.
+end note
+
+note bottom of WhiteNoiseSynthesizer
+  **White Noise Effect**
+  ══════════════════════
+  Simulates wind instrument breath:
+  s'(t) = s(t) + random(-b, b)
+  
+  Uses Random.nextDouble()
+  to add noise to each sample.
+end note
+
+note bottom of VibratoSynthesizer
+  **Vibrato Effect**
+  ══════════════════
+  Periodic pitch variation:
+  ∇(t) = p · sin(2π · v · t)
+  s'(t) = s(t) + ∇(t)
+  
+  p = depth, v = speed (Hz)
+end note
+
+note bottom of NoteFactory
+  **Singleton Pattern**
+  ═════════════════════
+  Single instance via
+  getInstance().
+  
+  Private constructor.
+end note
+
+note right of MultipleScoreSynthesizer
+  **Composite Pattern**
+  ═════════════════════
+  Combines multiple MusicSynthesizer
+  instances to synthesize multiple
+  scores (polyphony).
+  
+  Mixes samples from all synthesizers.
+end note
+
+note right of Instruments
+  **Enum with Strategy**
+  ══════════════════════
+  Each instrument has its own
+  NoteSynthesizer for specific
+  sound characteristics.
+end note
+
+note right of BassDrumSynthesizer
+  **Singleton Pattern + Strategy**
+  ═════════════════════════════════
+  Bass drum with:
+  • Variable frequency: f(t) = 60 + t·(40-60)/D
+  • Exponential decay: exp(-5t)
+  
+  Formula:
+  s(t) = V · exp(-5t) · sin(2π·f(t)·t)
+  
+  Fixed parameters:
+  • startFrequency = 60 Hz
+  • endFrequency = 40 Hz
+  • decayRate = 5.0
+  
+  getInstance() returns unique instance.
+end note
+
+note bottom of NoteFactory
+  **Singleton Pattern**
+  ═════════════════════
+  Single instance via
+  getInstance().
+  
+  Private constructor.
+end note
+
+
 
 ```
 
@@ -355,27 +675,27 @@ end note
 
 | Features                                               | Design Pattern(s) (?) | Author(s)       |
 |--------------------------------------------------------|-----------------------|-----------------|
-| Representation of a note's pitch (name + octave)       | None                  |                 |
+| Representation of a note's pitch (name + octave)       | None                  | Rabhi Nessim    |
 | Representation of a note/silence value                 | None                  | Dutkiewicz Tom  |
 | Representation of a musical note                       | Decorator             | Rabhi Nessim    |
 | Representation of a silence                            | Composite             | Dassonville Ugo |
 | Representation of a point on a note                    | Decorator             | Rabhi Nessim    |
 | Representation of a tie between notes                  | Composite             | Dutkiewicz Tom  |
 | Representation of a staff                              | Composite             | Ugo Dassonville |
-| Traversal of notes/silences in a staff                 | Iterator              |                 |
-| Representation of a musical piece                      | Composite             |                 |
-| Creation of musical elements (notes, silences)         | Abstract Fabric       |                 |
+| Traversal of notes/silences in a staff                 | Iterator              | Antoine/Ugo     |
+| Representation of a musical piece                      | Composite             | Mouille Antoine |
+| Creation of musical elements (notes, silences)         | Abstract Fabric       | Dutkiewicz Tom  |
 | Generation of the "pure" sound for a note              | Strategy              | Mouille Antoine |
 | Addition of harmonics to the sound of a note           | Decorator             | Rabhi Nessim    |
-| Application of an ADSR envelope to the sound of a note | Decorator             |                 |
-| Application of a vibrato to the sound of a note        | Decorator             |                 |
-| Addition of random noise to the sound of a note        | Decorator             |                 |
-| Synthesis of the bass drum sound                       | Strategy              | Antoine Mouille |
-| Synthesis of the snare drum sound                      | Strategy              | Antoine Mouille |
-| Synthesis of the cymbal sound                          | Strategy              | Antoine Mouille |
-| Synthesis of the triangle sound                        | Strategy              | Antoine Mouille |
-| Synthesis of the timpani sound                         | Strategy              | Antoine Mouille |
-| Synthesis of the xylophone sound                       | Strategy              | Antoine Mouille |
+| Application of an ADSR envelope to the sound of a note | Decorator             | Mouille Antoine |
+| Application of a vibrato to the sound of a note        | Decorator             | Dassonville Ugo |
+| Addition of random noise to the sound of a note        | Decorator             | Rabhi Nessim    |
+| Synthesis of the bass drum sound                       | Strategy              | Rabhi Nessim    |
+| Synthesis of the snare drum sound                      | Strategy              | Mouille Antoine |
+| Synthesis of the cymbal sound                          | Strategy              | Dutkiewicz Tom  |
+| Synthesis of the triangle sound                        | Strategy              | Dassonville Ugo |
+| Synthesis of the timpani sound                         | Strategy              | Antoine/Tom     |
+| Synthesis of the xylophone sound                       | Strategy              | Dassonville Ugo |
 | Definition of virtual instruments                      | Abstract Fabric       | Antoine/Ugo     |
 | Synthesis of the ensemble piece sound                  | Composite             |                 |
 | Command line management                                | Singleton             |                 |
