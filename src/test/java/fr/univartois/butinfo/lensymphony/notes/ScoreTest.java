@@ -2,43 +2,48 @@ package fr.univartois.butinfo.lensymphony.notes;
 
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the Score class.
+ */
 class ScoreTest {
 
+    @Test
+    void testConstructorAndGetters() {
+        List<Note> noteList = new ArrayList<>();
+        Score score = new Score(Instruments.PIANO, noteList);
 
-	@Test
-	void constructorSetsInstrument() {
-		List<Note> notes = new ArrayList<>();
-		Score stave = new Score(Instruments.XYLOPHONE,notes);
-		assertEquals(Instruments.XYLOPHONE, stave.getInstrument());
-	}
+        assertEquals(Instruments.PIANO, score.getInstrument(), "getInstrument() returned wrong value.");
+        assertSame(noteList, score.getNotes(), "getNotes() should return the original list.");
+    }
 
-	@Test
-	void iteratorIsEmptyWhenNoNotes() {
-		List<Note> notes = new ArrayList<>();
-		Score stave = new Score(Instruments.SNARE_DRUM, notes);
-		Iterator<Note> it = stave.iterator();
-		assertFalse(it.hasNext());
-	}
+    @Test
+    void testAddNote() {
+        List<Note> noteList = new ArrayList<>();
+        Score score = new Score(Instruments.FLUTE, noteList);
 
-	@Test
-	void addNote() {
-		List<Note> notes = new ArrayList<>();
-		Score stave = new Score(Instruments.TIMPANI,notes);
-		PitchedNote n1 = new PitchedNote(NotePitch.of(PitchClass.C, 5), NoteValue.EIGHTH);
-		PitchedNote n2 = new PitchedNote(NotePitch.of(PitchClass.D, 5), NoteValue.WHOLE);
+        Note note1 = new FakeNote(440.0, 500);
+        score.addNote(note1);
 
-		stave.addNote(n1);
-		stave.addNote(n2);
+        assertEquals(1, noteList.size(), "addNote() did not add note to the list.");
+        assertSame(note1, noteList.get(0), "The correct note was not added.");
+    }
 
-		List<Note> collected = new ArrayList<>();
-		stave.iterator().forEachRemaining(collected::add);
+    @Test
+    void testIterator() {
+        Note note1 = new FakeNote(440.0, 500);
+        Note note2 = new FakeNote(261.63, 500);
+        List<Note> noteList = new ArrayList<>(List.of(note1, note2));
 
-		assertEquals(2, collected.size());
-		assertSame(n1, collected.get(0));
-		assertSame(n2, collected.get(1));
-	}
+        Score score = new Score(Instruments.GUITAR, noteList);
+
+        int count = 0;
+        for (Note n : score) {
+            assertNotNull(n);
+            count++;
+        }
+        assertEquals(2, count, "Iterator did not loop over the correct number of notes.");
+    }
 }
