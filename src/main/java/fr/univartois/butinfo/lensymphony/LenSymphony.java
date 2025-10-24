@@ -127,7 +127,7 @@ public final class LenSymphony {
 
         for (Score score : musicPiece.getScores()) {
             NoteSynthesizer ns = score.getInstrument().getSynthesizer();
-            SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns);
+            SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns,0.7);
             composite.add(sms);
         }
 
