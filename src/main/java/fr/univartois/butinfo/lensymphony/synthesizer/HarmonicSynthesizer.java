@@ -98,7 +98,7 @@ public class HarmonicSynthesizer extends NoteSynthesizerDecorator {
 
         for (int i = 0; i < nbSample; i++) {
             double t = (double) i / SAMPLE_RATE;
-            double value = 0.0;
+            double value = sounds[i];
 
             for (int harmonic = 2; harmonic <= numberOfHarmonics; harmonic++) {
                 value += Math.sin(2 * Math.PI * harmonic * frequency * t) / Math.sqrt(harmonic);

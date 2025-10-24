@@ -32,7 +32,7 @@ public enum Instruments {
 	/**
 	 * A timpani using 7 harmonics.
 	 */
-	TIMPANI(new HarmonicSynthesizer(new PureSound(), 7)),
+	TIMPANI(TimpaniSynthesizer.getInstance()),
 
 	/**
 	 * A xylophone using 8 harmonics.
