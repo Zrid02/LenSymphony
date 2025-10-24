@@ -33,6 +33,7 @@ import javax.xml.parsers.SAXParserFactory;
 import fr.univartois.butinfo.lensymphony.musicxml.MusicXMLSaxParser;
 import fr.univartois.butinfo.lensymphony.notes.*;
 import fr.univartois.butinfo.lensymphony.synthesizer.*;
+import picocli.CommandLine;
 
 /**
  * The LenSymphony class provides a simple application to synthesize and play music from a
@@ -73,67 +74,71 @@ public final class LenSymphony {
      * @throws Exception If any error occurs.
      */
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            // The command line is invalid.
-            throw new IllegalArgumentException("MusicXML file is required as single argument");
-        }
+        MusicCommandLine cmd = new MusicCommandLine();
+        new CommandLine(cmd).execute("-i", "-o","-p");
+        if (cmd.isPlay()) {
 
-        // Creating the SAX parser.
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser saxParser = factory.newSAXParser();
-
-        // Parsing the MusicXML file.
-        MusicXMLSaxParser handler = new MusicXMLSaxParser(noteFactory);
-        saxParser.parse(new File(args[0]), handler);
-
-        // Creating a musical score from the parsed data.
-
-        // Synthesizing and playing the music.
-        MusicPiece musicPiece = new MusicPiece(handler.getTempo());
-
-        Map<String, List<Note>> listePartitions = handler.getParts();
-
-        int i = 0;
-        for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
-            i++;
-            List<Note> notes = entry.getValue();
-            if (notes == null) {
-                continue;
+            if (args.length != 1) {
+                // The command line is invalid.
+                throw new IllegalArgumentException("MusicXML file is required as single argument");
             }
-            Score score = null;
-            switch (entry.getKey()) {
-                case "P1", "P2" :
-                    score = new Score(Instruments.XYLOPHONE, notes);
-                    break;
-                case "P3" :
-                    score = new Score(Instruments.TRIANGLE, notes);
-                    break;
-                case "P4" :
-                    score = new Score(Instruments.SNARE_DRUM, notes);
-                    break;
-                case "P5" :
-                    score = new Score(Instruments.BASS_DRUM, notes);
-                    break;
-                case "P6" :
-                    score = new Score(Instruments.CYMBAL, notes);
-                    break;
-                default:
-                    score = new Score(Instruments.XYLOPHONE, notes);
+
+            // Creating the SAX parser.
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            // Parsing the MusicXML file.
+            MusicXMLSaxParser handler = new MusicXMLSaxParser(noteFactory);
+            saxParser.parse(new File(cmd.getInput()), handler);
+
+            // Creating a musical score from the parsed data.
+
+            // Synthesizing and playing the music.
+            MusicPiece musicPiece = new MusicPiece(handler.getTempo());
+
+            Map<String, List<Note>> listePartitions = handler.getParts();
+
+
+            for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
+                List<Note> notes = entry.getValue();
+                if (notes == null) {
+                    continue;
+                }
+                Score score = null;
+                switch (entry.getKey()) {
+                    case "P1", "P2":
+                        score = new Score(Instruments.XYLOPHONE, notes);
+                        break;
+                    case "P3":
+                        score = new Score(Instruments.TRIANGLE, notes);
+                        break;
+                    case "P4":
+                        score = new Score(Instruments.SNARE_DRUM, notes);
+                        break;
+                    case "P5":
+                        score = new Score(Instruments.BASS_DRUM, notes);
+                        break;
+                    case "P6":
+                        score = new Score(Instruments.CYMBAL, notes);
+                        break;
+                    default:
+                        score = new Score(Instruments.XYLOPHONE, notes);
+                }
+                musicPiece.addScore(score);
             }
-            musicPiece.addScore(score);
+
+            MultipleScoreSynthesizer composite = new MultipleScoreSynthesizer();
+
+            for (Score score : musicPiece.getScores()) {
+                NoteSynthesizer ns = score.getInstrument().getSynthesizer();
+                SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns);
+                composite.add(sms);
+            }
+
+            composite.synthesize();
+            composite.play();
+
         }
-
-        MultipleScoreSynthesizer composite = new MultipleScoreSynthesizer();
-
-        for (Score score : musicPiece.getScores()) {
-            NoteSynthesizer ns = score.getInstrument().getSynthesizer();
-            SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns,0.7);
-            composite.add(sms);
-        }
-
-        composite.synthesize();
-        composite.play();
-
     }
 
 }
