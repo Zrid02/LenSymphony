@@ -518,6 +518,21 @@ package "tests" <<Rectangle>> {
   }
 }
 
+class MusicCommandLine {
+    - input : String
+    - output : String
+    - play : boolean
+    - voices : List<String>
+    --
+    + getInput() : String
+    + getOutput() : String
+    + isPlay() : boolean
+    + getVoices() : List<String>
+    + call() : Integer \n<<throws Exception>>
+  }
+
+
+
 PitchedNoteTest ..> PitchedNote : tests
 ScoreTest ..> Score : tests
 HarmonicSynthesizerTest ..> HarmonicSynthesizer : tests
@@ -697,8 +712,8 @@ end note
 | Synthesis of the timpani sound                         | Strategy              | Antoine/Tom     |
 | Synthesis of the xylophone sound                       | Strategy              | Dassonville Ugo |
 | Definition of virtual instruments                      | Abstract Fabric       | Antoine/Ugo     |
-| Synthesis of the ensemble piece sound                  | Composite             |                 |
-| Command line management                                | Singleton             |                 |
+| Synthesis of the ensemble piece sound                  | Composite             | Dutkiewicz Tom  |
+| Command line management                                | Singleton             | Antoine/Ugo     |
 
 ## Team
 
