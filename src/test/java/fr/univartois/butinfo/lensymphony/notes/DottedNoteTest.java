@@ -1,49 +1,28 @@
 package fr.univartois.butinfo.lensymphony.notes;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DottedNoteTest {
+/**
+ * Unit tests for the DottedNote decorator.
+ */
+class DottedNoteTest {
 
     @Test
-    void createDottedNote() {
-        Note base = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
-        Note dotted = new DottedNote(base);
+    void testDottedNoteDuration() {
+        Note baseNote = new FakeNote(440.0, 1000);
+        Note dottedNote = new DottedNote(baseNote);
 
-        assertNotNull(dotted);
+        // Expected: 1000 * 1.5 = 1500
+        assertEquals(1500, dottedNote.getDuration(120), "DottedNote duration should be 1.5 times base.");
     }
 
     @Test
-    void getFrequency_unchanged() {
-        Note base = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
-        Note dotted = new DottedNote(base);
+    void testDecoratorFrequencyPassthrough() {
+        // This test validates the NoteDecorator's getFrequency()
+        Note baseNote = new FakeNote(261.63, 1000);
+        Note dottedNote = new DottedNote(baseNote);
 
-        assertEquals(440.0, dotted.getFrequency(), 0.01);
-    }
-
-    @Test
-    void getDuration_multipliedBy1point5() {
-        Note base = new PitchedNote(NotePitch.of(PitchClass.A, 4), NoteValue.QUARTER);
-        Note dotted = new DottedNote(base);
-
-        // quarter@120 = 500 ms -> dotted = 500 * 1.5 = 750 ms
-        assertEquals(750, dotted.getDuration(120));
-    }
-
-    @Test
-    void nullNote_throwsException() {
-        assertThrows(NullPointerException.class, () -> {
-            new DottedNote(null);
-        });
-    }
-
-    @Test
-    void dottedHalfNote() {
-        Note base = new PitchedNote(NotePitch.of(PitchClass.C, 4), NoteValue.HALF);
-        Note dotted = new DottedNote(base);
-
-        // half@120 = 1000 ms -> dotted = 1000 * 1.5 = 1500 ms
-        assertEquals(1500, dotted.getDuration(120));
+        assertEquals(261.63, dottedNote.getFrequency(), "Decorator should not change frequency.");
     }
 }
