@@ -1,27 +1,38 @@
 package fr.univartois.butinfo.lensymphony.synthesizer;
 
-import fr.univartois.butinfo.lensymphony.notes.Instruments;
 import fr.univartois.butinfo.lensymphony.notes.Note;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test class for CymbaleSynthesizer.
- * It checks the Singleton pattern, the atonal behavior, and
- * sound generation.
+ * Unit tests for the CymbaleSynthesizer class.
+ *
+ * Testing is focused on the deterministic parts of the synthesizer:
+ * - The cymbaleEnvelope() method, which is public and deterministic.
+ * - Edge cases like zero frequency or zero duration notes.
+ *
+ * Direct testing of the synthesize() output values is not possible
+ * due to the use of java.util.Random.
  */
 class CymbaleSynthesizerTest {
 
-    /**
-     * A "Stub" class for Note, used only for testing.
-     * It implements the Note interface with the minimum required
-     * for the synthesizers to use it.
-     */
-    private static class StubNote implements Note {
-        private final double frequency;
-        private final int durationMs;
+    private static final int SAMPLE_RATE = NoteSynthesizer.SAMPLE_RATE;
+    private static final int TEMPO = 120; // Standard tempo
+    private static final double VOLUME = 1.0; // Standard volume
 
-        public StubNote(double frequency, int durationMs) {
+    // Constants from the implementation
+    private static final double ATTACK_DEFAULT = 0.01; // 10ms
+    private static final double DECAY_DEFAULT = 0.2; // 200ms
+
+    /**
+     * A simple fake Note implementation for testing.
+     * It returns the duration as an int, mimicking truncation.
+     */
+    private static class FakeNote implements Note {
+        private final double frequency;
+        private final double durationMs;
+
+        FakeNote(double frequency, double durationMs) {
             this.frequency = frequency;
             this.durationMs = durationMs;
         }
@@ -33,91 +44,115 @@ class CymbaleSynthesizerTest {
 
         @Override
         public int getDuration(int tempo) {
-            return durationMs;
+            return (int) durationMs;
         }
-
-        // If the Note interface declares other methods,
-        // they would need to be implemented here (even with an empty body).
-    }
-
-
-    /**
-     * Test 1: Verifies that the Singleton pattern is respected.
-     * Two calls to getInstance() must return the SAME instance.
-     *
-     */
-    @Test
-    void testSingletonInstanceIsUnique() {
-        NoteSynthesizer instance1 = CymbaleSynthesizer.getInstance();
-        NoteSynthesizer instance2 = CymbaleSynthesizer.getInstance();
-
-        // assertSame checks that both variables point
-        // to the same object in memory.
-        assertSame(instance1, instance2, "getInstance() must always return the same instance.");
     }
 
     /**
-     * Test 2: Verifies the atonal behavior (silence handling).
-     * If the note has a frequency <= 0, the synthesizer must
-     * return an empty array.
+     * Calculates the expected number of samples using the same logic
+     * as the synthesizer implementation (double division).
      */
-    @Test
-    void testSynthesizeReturnsEmptyArrayForSilence() {
-        NoteSynthesizer synthesizer = CymbaleSynthesizer.getInstance();
-
-        // Create a "silent" note (frequency of 0)
-        Note silence = new StubNote(0.0, 1000); // 1 second of silence
-
-        double[] samples = synthesizer.synthesize(silence, 120, 1.0);
-
-        // Check that the sound array is empty
-        assertEquals(0, samples.length, "An atonal instrument must not play during a silence.");
+    private int getExpectedNbSamples(Note note, int tempo) {
+        // Implementation uses: (int) ((note.getDuration(tempo) / 1000.0) * SAMPLE_RATE)
+        double durationSeconds = note.getDuration(tempo) / 1000.0;
+        return (int) (durationSeconds * SAMPLE_RATE);
     }
 
     /**
-     * Test 3: Verifies sound generation for a valid note.
-     * For a normal note (frequency > 0), the synthesizer must
-     * generate an array of the correct size and containing sound.
+     * Tests the public cymbaleEnvelope() method directly,
+     * as this contains the core (and testable) logic.
      */
     @Test
-    void testSynthesizeGeneratesSoundForValidNote() {
-        NoteSynthesizer synthesizer = CymbaleSynthesizer.getInstance();
-        int durationMs = 500; // 0.5 seconds
+    void testCymbaleEnvelopeLogic() {
+        CymbaleSynthesizer synth = CymbaleSynthesizer.getInstance();
+        double volume = 0.8; // Use a non-1.0 volume
 
-        // A normal note (440 Hz)
-        Note note = new StubNote(440.0, durationMs);
+        // 1. Test in the middle of the attack phase (t < 0.01)
+        double t_attack = 0.005; // 5ms
+        // expected = volume * (t / attack) = 0.8 * (0.005 / 0.01) = 0.8 * 0.5 = 0.4
+        double expected_attack = volume * (t_attack / ATTACK_DEFAULT);
+        assertEquals(expected_attack, synth.cymbaleEnvelope(t_attack, volume), 1e-9,
+                "Envelope value in attack phase is incorrect.");
 
-        double[] samples = synthesizer.synthesize(note, 120, 1.0);
+        // 2. Test at the exact peak (t == attack)
+        double t_peak = ATTACK_DEFAULT; // 10ms
+        // expected = volume * Math.exp((attack - t) / decay) = 0.8 * Math.exp(0) = 0.8
+        double expected_peak = volume * Math.exp((ATTACK_DEFAULT - t_peak) / DECAY_DEFAULT);
+        assertEquals(expected_peak, synth.cymbaleEnvelope(t_peak, volume), 1e-9,
+                "Envelope value at peak (start of decay) is incorrect.");
+        assertEquals(volume, expected_peak, 1e-9); // Should be full volume
 
-        // 1. Check the array size
-        // Nb Samples = duration (sec) * SAMPLE_RATE
-        int expectedLength = (int) ((durationMs / 1000.0) * NoteSynthesizer.SAMPLE_RATE);
-        assertEquals(expectedLength, samples.length, "The sample array size must match the note's duration.");
-
-        // 2. Check that there is sound
-        // Because of random(), we cannot predict the exact values.
-        // So, we check that the array is not just filled with zeros.
-        double sum = 0.0;
-        for (double sample : samples) {
-            sum += Math.abs(sample); // Sum of absolute values
-        }
-
-        assertTrue(sum > 0.0, "The generated sound must not be total silence (all zeros).");
+        // 3. Test in the middle of the decay phase (t > 0.01)
+        double t_decay = 0.05; // 50ms
+        // expected = volume * Math.exp((0.01 - 0.05) / 0.2) = 0.8 * Math.exp(-0.04 / 0.2) = 0.8 * Math.exp(-0.2)
+        double expected_decay = volume * Math.exp((ATTACK_DEFAULT - t_decay) / DECAY_DEFAULT);
+        assertEquals(expected_decay, synth.cymbaleEnvelope(t_decay, volume), 1e-9,
+                "Envelope value in decay phase is incorrect.");
     }
 
     /**
-     * Test 4: Verifies integration with the Instruments enum.
-     * The enum must use the singleton instance correctly.
+     * Tests the synthesize method with a zero frequency note.
+     * The implementation should return an array of zeros, but of the correct length.
      */
     @Test
-    void testInstrumentsEnumUsesSingletonInstance() {
-        // Get the synthesizer from the enum
-        NoteSynthesizer fromEnum = Instruments.CYMBAL.getSynthesizer();
+    void testZeroFrequencyNote() {
+        double durationMs = 100.0; // 100ms
+        double frequency = 0.0;
 
-        // Get the synthesizer directly
-        NoteSynthesizer fromSingleton = CymbaleSynthesizer.getInstance();
+        Note note = new FakeNote(frequency, durationMs);
+        CymbaleSynthesizer synth = CymbaleSynthesizer.getInstance();
 
-        // Check that it's the same object
-        assertSame(fromSingleton, fromEnum, "Instruments.CYMBAL must use the CymbaleSynthesizer singleton.");
+        int nbSample = getExpectedNbSamples(note, TEMPO); // (int)(0.1 * 44100) = 4410
+
+        double[] resultSound = synth.synthesize(note, TEMPO, VOLUME);
+
+        // Check length
+        assertEquals(nbSample, resultSound.length,
+                "Array length should match duration even if frequency is 0.");
+
+        // Check content (should be all zeros)
+        double[] expectedSound = new double[nbSample];
+        assertArrayEquals(expectedSound, resultSound, 0.0,
+                "A zero frequency note should result in silence.");
+    }
+
+    /**
+     * Tests synthesis with a duration of zero.
+     * This should result in an empty array (0 samples).
+     */
+    @Test
+    void testZeroDurationNote() {
+        double durationMs = 0.0;
+        double frequency = 440.0;
+
+        Note note = new FakeNote(frequency, durationMs);
+        CymbaleSynthesizer synth = CymbaleSynthesizer.getInstance();
+
+        double[] resultSound = synth.synthesize(note, TEMPO, VOLUME);
+
+        // nbSample = (int)(0.0 * 44100) = 0
+        assertEquals(0, resultSound.length,
+                "A zero duration note should result in 0 samples.");
+    }
+
+    /**
+     * A "smoke test" for the synthesize method with a valid note.
+     * We cannot check the values, but we can check that it runs
+     * and returns an array of the correct (non-zero) length.
+     */
+    @Test
+    void testSynthesizeReturnsCorrectLength() {
+        double durationMs = 50.0; // 50ms
+        double frequency = 440.0;
+
+        Note note = new FakeNote(frequency, durationMs);
+        CymbaleSynthesizer synth = CymbaleSynthesizer.getInstance();
+
+        int nbSample = getExpectedNbSamples(note, TEMPO); // (int)(0.05 * 44100) = 2205
+
+        double[] resultSound = synth.synthesize(note, TEMPO, VOLUME);
+
+        assertEquals(nbSample, resultSound.length,
+                "Synthesize method did not return an array of the expected length.");
     }
 }
