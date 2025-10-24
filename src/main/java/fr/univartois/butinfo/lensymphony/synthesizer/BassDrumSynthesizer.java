@@ -104,6 +104,8 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      */
 
 
+
+
     /**
      * Synthesizes a bass drum sound for the given note.
      * <p>
@@ -123,6 +125,7 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
      * @return An array of audio samples representing the bass drum sound.
      *         Returns an empty array if the calculated frequency is not positive.
      */
+
     @Override
     public double[] synthesize(Note note, int tempo, double volume) {
 
