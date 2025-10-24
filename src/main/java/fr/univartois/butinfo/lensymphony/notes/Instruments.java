@@ -74,6 +74,34 @@ public enum Instruments {
 	)),
 
 
+	FRENCH_HORN(new VibratoSynthesizer(
+			new ADSRSynthesizer(
+					new HarmonicSynthesizer(new PureSound(), 11),
+					0.1, 0.08, 0.75, 0.9
+			),
+			0.012, 3.8)
+	),
+
+	ACCORDION(new VibratoSynthesizer(
+			new ADSRSynthesizer(
+					new HarmonicSynthesizer(new PureSound(), 8),
+					0.04, 0.02, 0.85, 0.5
+			),
+			0.015, 4.2)
+	),
+
+	GASBA(new WhiteNoiseSynthesizer(
+			new VibratoSynthesizer(
+					new ADSRSynthesizer(
+							new HarmonicSynthesizer(new PureSound(), 4),
+							0.1, 0.05, 0.55, 1.2
+					),
+					0.012, 4.0
+			),
+			0.015)
+	),
+
+
 	/*
 	A flute using harmonics odd
 	 */
@@ -91,16 +119,17 @@ public enum Instruments {
 			0.01, 5.0
 	)),
 
+	BANJO(new ADSRSynthesizer(
+			new HarmonicSynthesizer(new PureSound(), 12),
+			0.003, 0.15, 0.3, 1.8
+	)),
+
 	HARP(new HarmonicSynthesizerComplex(
 			new ADSRSynthesizer(new PureSound(), 0.001, 0.1, 0.3, 1.5),
 			10,
 			i -> i,
 			(i, t) -> Math.pow(0.7, i - 1) * Math.exp(-t * (i - 1) * 0.5)
 	));
-
-
-
-
 
 	/**
 	 * The synthesizer used to generate the instrument's sound.
