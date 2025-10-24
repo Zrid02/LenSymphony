@@ -297,7 +297,7 @@ class SnareDrumSynthesizer implements NoteSynthesizer{
     + synthesize(note: Note, tempo: int, volume: double): double[] 
 }
 
-class TimpaniSynthesizer implments NoteSynthesizer{
+class TimpaniSynthesizer implements NoteSynthesizer{
     - {static} INSTANCE: TimpaniSynthesizer
     - TimpaniSynthesizer()
     + {static} getInstance(): TimpaniSynthesizer

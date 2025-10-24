@@ -41,7 +41,7 @@ public final class SimpleMusicSynthesizer implements MusicSynthesizer {
     /**
      * The default volume level for the notes.
      */
-    private static final double DEFAULT_VOLUME = 0.5;
+    private double default_volume ;
 
     /**
      * The tempo of the music in beats per minute (BPM).
@@ -70,11 +70,12 @@ public final class SimpleMusicSynthesizer implements MusicSynthesizer {
      * @param notes The notes to play in the audio stream.
      * @param synthetizer The note synthesizer used to generate the audio samples.
      */
-    public SimpleMusicSynthesizer(int tempo, Iterable<Note> notes, NoteSynthesizer synthetizer) {
+    public SimpleMusicSynthesizer(int tempo, Iterable<Note> notes, NoteSynthesizer synthetizer,double default_volume) {
         this.tempo = tempo;
         this.notes = notes;
         this.synthesizer = synthetizer;
         this.samples = new double[0];
+        this.default_volume = default_volume;
     }
 
     /*
@@ -86,7 +87,7 @@ public final class SimpleMusicSynthesizer implements MusicSynthesizer {
     public void synthesize() {
         for (Note note : notes) {
             // Synthesizing the sound samples for this note.
-            double[] noteSamples = synthesizer.synthesize(note, tempo, DEFAULT_VOLUME);
+            double[] noteSamples = synthesizer.synthesize(note, tempo, default_volume);
 
             // Appending the samples to the overall audio stream.
             int previousLength = samples.length;
