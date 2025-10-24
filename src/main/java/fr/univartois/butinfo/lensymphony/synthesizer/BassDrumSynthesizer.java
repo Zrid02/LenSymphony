@@ -143,7 +143,8 @@ public class BassDrumSynthesizer implements NoteSynthesizer {
             double frequency = startFrequency + (t * (endFrequency - startFrequency) / duration);
 
             if (frequency <= 0) {
-                return sounds;
+                 sounds[i] = 0;
+                 continue;
             }
 
             // Calculate exponential decay envelope: exp(-decayRate · t)

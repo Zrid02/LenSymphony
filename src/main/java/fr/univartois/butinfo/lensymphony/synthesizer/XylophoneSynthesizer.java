@@ -49,9 +49,6 @@ public class XylophoneSynthesizer implements NoteSynthesizer {
 	@Override
 	public double[] synthesize(Note note, int tempo, double volume) {
 		double frequency = note.getFrequency();
-		if (frequency <= 0) {
-			frequency = baseFrequency;
-		}
 
 		double durationSeconds = note.getDuration(tempo) / 1000.0;
 		int nbSample = (int) (durationSeconds * SAMPLE_RATE);

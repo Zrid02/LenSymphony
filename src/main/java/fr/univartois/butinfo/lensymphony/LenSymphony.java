@@ -101,20 +101,20 @@ public final class LenSymphony {
                 continue;
             }
             Score score = null;
-            switch (i) {
-                case 1,2 :
+            switch (entry.getKey()) {
+                case "P1", "P2" :
                     score = new Score(Instruments.XYLOPHONE, notes);
                     break;
-                case 3 :
+                case "P3" :
                     score = new Score(Instruments.TRIANGLE, notes);
                     break;
-                case 4 :
+                case "P4" :
                     score = new Score(Instruments.SNARE_DRUM, notes);
                     break;
-                case 5 :
+                case "P5" :
                     score = new Score(Instruments.BASS_DRUM, notes);
                     break;
-                case 6 :
+                case "P6" :
                     score = new Score(Instruments.CYMBAL, notes);
                     break;
                 default:
