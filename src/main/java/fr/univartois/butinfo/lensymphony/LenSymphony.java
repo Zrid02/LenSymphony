@@ -75,13 +75,14 @@ public final class LenSymphony {
      */
     public static void main(String[] args) throws Exception {
         MusicCommandLine cmd = new MusicCommandLine();
-        new CommandLine(cmd).execute("-i", "-o","-p");
-        if (cmd.isPlay()) {
+        new CommandLine(cmd).execute(args);
 
-            if (args.length != 1) {
+
+            if (cmd.getInput() == null) {
                 // The command line is invalid.
                 throw new IllegalArgumentException("MusicXML file is required as single argument");
             }
+
 
             // Creating the SAX parser.
             SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -99,31 +100,28 @@ public final class LenSymphony {
             Map<String, List<Note>> listePartitions = handler.getParts();
 
 
+            List<String> voices = cmd.getVoices();
+            if (voices != null) {
+                for (String voice : voices) {
+                    String[] split = voice.split(":");
+                    String part = split[0];
+                    String instrument = split[1].toUpperCase();
+                    List<Note> notes = listePartitions.get(part);
+                    if (notes == null) {
+                        continue;
+                    }
+                    Score score = new Score(Instruments.valueOf(instrument), notes);
+                    musicPiece.addScore(score);
+                    listePartitions.remove(part);
+                }
+            }
+
             for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
                 List<Note> notes = entry.getValue();
                 if (notes == null) {
                     continue;
                 }
-                Score score = null;
-                switch (entry.getKey()) {
-                    case "P1", "P2":
-                        score = new Score(Instruments.XYLOPHONE, notes);
-                        break;
-                    case "P3":
-                        score = new Score(Instruments.TRIANGLE, notes);
-                        break;
-                    case "P4":
-                        score = new Score(Instruments.SNARE_DRUM, notes);
-                        break;
-                    case "P5":
-                        score = new Score(Instruments.BASS_DRUM, notes);
-                        break;
-                    case "P6":
-                        score = new Score(Instruments.CYMBAL, notes);
-                        break;
-                    default:
-                        score = new Score(Instruments.XYLOPHONE, notes);
-                }
+                Score score = new Score(Instruments.XYLOPHONE, notes); //Default instrument
                 musicPiece.addScore(score);
             }
 
@@ -131,14 +129,18 @@ public final class LenSymphony {
 
             for (Score score : musicPiece.getScores()) {
                 NoteSynthesizer ns = score.getInstrument().getSynthesizer();
-                SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns);
+                SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns,0.5);
                 composite.add(sms);
             }
 
             composite.synthesize();
-            composite.play();
+            if (cmd.getOutput() != null) {
+                composite.save(cmd.getOutput());
+            }
+            if (cmd.isPlay()) {
+                composite.play();
+            }
 
-        }
     }
 
 }
