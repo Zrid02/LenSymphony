@@ -25,11 +25,8 @@ package fr.univartois.butinfo.lensymphony;
 
 import java.util.List;
 
-import fr.univartois.butinfo.lensymphony.notes.AbstractNoteFactory;
-import fr.univartois.butinfo.lensymphony.notes.Note;
-import fr.univartois.butinfo.lensymphony.notes.NotePitch;
-import fr.univartois.butinfo.lensymphony.notes.NoteValue;
-import fr.univartois.butinfo.lensymphony.notes.PitchClass;
+import fr.univartois.butinfo.lensymphony.notes.*;
+import fr.univartois.butinfo.lensymphony.synthesizer.PureSound;
 import fr.univartois.butinfo.lensymphony.synthesizer.SimpleMusicSynthesizer;
 import fr.univartois.butinfo.lensymphony.synthesizer.MusicSynthesizer;
 import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
@@ -48,13 +45,13 @@ public final class Example {
      * The note factory used to create notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static AbstractNoteFactory noteFactory = null;
+    private static AbstractNoteFactory noteFactory = NoteFactory.getInstance();
 
     /**
      * The note synthesizer used to synthesize notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static NoteSynthesizer noteSynthesizer = null;
+    private static NoteSynthesizer noteSynthesizer = new PureSound();
 
     /**
      * Disables instantiation.
@@ -112,7 +109,7 @@ public final class Example {
                 noteFactory.createNote(NotePitch.of(PitchClass.G, 4), NoteValue.HALF));
 
         // Synthesizing and playing the melody.
-        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(100, notes, noteSynthesizer);
+        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(100, notes, noteSynthesizer,50);
         musicSynthetizer.synthesize();
         musicSynthetizer.play();
     }

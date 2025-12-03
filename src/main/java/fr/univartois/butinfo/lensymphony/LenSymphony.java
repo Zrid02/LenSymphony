@@ -24,15 +24,16 @@
 package fr.univartois.butinfo.lensymphony;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import fr.univartois.butinfo.lensymphony.musicxml.MusicXMLSaxParser;
-import fr.univartois.butinfo.lensymphony.notes.AbstractNoteFactory;
-import fr.univartois.butinfo.lensymphony.synthesizer.MusicSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.NoteSynthesizer;
-import fr.univartois.butinfo.lensymphony.synthesizer.SimpleMusicSynthesizer;
+import fr.univartois.butinfo.lensymphony.notes.*;
+import fr.univartois.butinfo.lensymphony.synthesizer.*;
+import picocli.CommandLine;
 
 /**
  * The LenSymphony class provides a simple application to synthesize and play music from a
@@ -49,13 +50,13 @@ public final class LenSymphony {
      * The note factory used to create notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static AbstractNoteFactory noteFactory = null;
+    private static AbstractNoteFactory noteFactory = NoteFactory.getInstance();
 
     /**
      * The note synthesizer used to synthesize notes.
      * TODO: You have to set it with your own implementation.
      */
-    private static NoteSynthesizer noteSynthesizer = null;
+    private static NoteSynthesizer noteSynthesizer = new PureSound();
 
     /**
      * Disables instantiation.
@@ -73,27 +74,73 @@ public final class LenSymphony {
      * @throws Exception If any error occurs.
      */
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            // The command line is invalid.
-            throw new IllegalArgumentException("MusicXML file is required as single argument");
-        }
+        MusicCommandLine cmd = new MusicCommandLine();
+        new CommandLine(cmd).execute(args);
 
-        // Creating the SAX parser.
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser saxParser = factory.newSAXParser();
 
-        // Parsing the MusicXML file.
-        MusicXMLSaxParser handler = new MusicXMLSaxParser(noteFactory);
-        saxParser.parse(new File(args[0]), handler);
+            if (cmd.getInput() == null) {
+                // The command line is invalid.
+                throw new IllegalArgumentException("MusicXML file is required as single argument");
+            }
 
-        // Creating a musical score from the parsed data.
-        // TODO: Instantiate your representation of a musical score here.
 
-        // Synthesizing and playing the music.
-        // TODO: Use the musical score instead of the parsed data directly.
-        MusicSynthesizer musicSynthetizer = new SimpleMusicSynthesizer(handler.getTempo(), handler.getNotes(), noteSynthesizer);
-        musicSynthetizer.synthesize();
-        musicSynthetizer.play();
+            // Creating the SAX parser.
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            // Parsing the MusicXML file.
+            MusicXMLSaxParser handler = new MusicXMLSaxParser(noteFactory);
+            saxParser.parse(new File(cmd.getInput()), handler);
+
+            // Creating a musical score from the parsed data.
+
+            // Synthesizing and playing the music.
+            MusicPiece musicPiece = new MusicPiece(handler.getTempo());
+
+            Map<String, List<Note>> listePartitions = handler.getParts();
+
+
+            List<String> voices = cmd.getVoices();
+            if (voices != null) {
+                for (String voice : voices) {
+                    String[] split = voice.split(":");
+                    String part = split[0];
+                    String instrument = split[1].toUpperCase();
+                    List<Note> notes = listePartitions.get(part);
+                    if (notes == null) {
+                        continue;
+                    }
+                    Score score = new Score(Instruments.valueOf(instrument), notes);
+                    musicPiece.addScore(score);
+                    listePartitions.remove(part);
+                }
+            }
+
+            for (Map.Entry<String, List<Note>> entry : listePartitions.entrySet()) {
+                List<Note> notes = entry.getValue();
+                if (notes == null) {
+                    continue;
+                }
+                Score score = new Score(Instruments.XYLOPHONE, notes); //Default instrument
+                musicPiece.addScore(score);
+            }
+
+            MultipleScoreSynthesizer composite = new MultipleScoreSynthesizer();
+
+            for (Score score : musicPiece.getScores()) {
+                NoteSynthesizer ns = score.getInstrument().getSynthesizer();
+                SimpleMusicSynthesizer sms = new SimpleMusicSynthesizer(musicPiece.getTempo(), score.getNotes(), ns,0.5);
+                composite.add(sms);
+            }
+
+            composite.synthesize();
+            if (cmd.getOutput() != null) {
+                composite.save(cmd.getOutput());
+            }
+            if (cmd.isPlay()) {
+                composite.play();
+            }
+
     }
 
 }

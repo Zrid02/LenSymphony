@@ -158,6 +158,7 @@ public final class MusicXMLSaxParser extends DefaultHandler {
             Map.entry("octave", this::endOctave),
             Map.entry("display-octave", this::endOctave),
             Map.entry("pitch", this::endPitch),
+            Map.entry("unpitched", this::endPitch),
             Map.entry("type", this::endType),
             Map.entry("dot", this::endDot),
             Map.entry("fermata", this::endFermata),
